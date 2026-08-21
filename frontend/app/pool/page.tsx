@@ -4,27 +4,25 @@ import { useState, useEffect } from "react";
 import { 
   Droplets, 
   Lock, 
-  TrendingUp, 
-  RefreshCw, 
   Plus, 
   ArrowDownToLine, 
-  Sliders, 
-  Shield, 
+  RefreshCw, 
   CheckCircle2,
-  ChevronRight,
-  Info
+  Sliders,
+  Shield
 } from "lucide-react";
 import { ShieldedPosition, OBLIVION_CONTRACTS } from "@/lib/starknet";
 import { createShieldedNote } from "@/lib/poseidon";
 import { fetchLiveOraclePrices, SpotPrices } from "@/lib/oracle";
 import { TOKEN_ADDRESSES, fetchTokenBalance } from "@/lib/rpc";
+import LiquidityVisualizer from "@/components/LiquidityVisualizer";
 
 export default function PoolPage() {
   const [depositAmount, setDepositAmount] = useState("5000");
   const [token, setToken] = useState("STRK");
   const [rangePreset, setRangePreset] = useState<"NARROW" | "MODERATE" | "WIDE">("MODERATE");
-  const [lowerPrice, setLowerPrice] = useState("0.42");
-  const [upperPrice, setUpperPrice] = useState("0.56");
+  const [lowerPrice, setLowerPrice] = useState(0.4082);
+  const [upperPrice, setUpperPrice] = useState(0.5522);
   const [isDepositing, setIsDepositing] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [strkBalance, setStrkBalance] = useState("12,500.00");
@@ -72,6 +70,8 @@ export default function PoolPage() {
       if (active) {
         setOraclePrices(prices);
         setStrkBalance(bal);
+        setLowerPrice(parseFloat((prices.STRK * 0.85).toFixed(4)));
+        setUpperPrice(parseFloat((prices.STRK * 1.15).toFixed(4)));
       }
     }
     loadData();
@@ -86,14 +86,14 @@ export default function PoolPage() {
     setRangePreset(preset);
     const spot = oraclePrices.STRK;
     if (preset === "NARROW") {
-      setLowerPrice((spot * 0.95).toFixed(4));
-      setUpperPrice((spot * 1.05).toFixed(4));
+      setLowerPrice(parseFloat((spot * 0.95).toFixed(4)));
+      setUpperPrice(parseFloat((spot * 1.05).toFixed(4)));
     } else if (preset === "MODERATE") {
-      setLowerPrice((spot * 0.85).toFixed(4));
-      setUpperPrice((spot * 1.15).toFixed(4));
+      setLowerPrice(parseFloat((spot * 0.85).toFixed(4)));
+      setUpperPrice(parseFloat((spot * 1.15).toFixed(4)));
     } else {
-      setLowerPrice((spot * 0.70).toFixed(4));
-      setUpperPrice((spot * 1.30).toFixed(4));
+      setLowerPrice(parseFloat((spot * 0.70).toFixed(4)));
+      setUpperPrice(parseFloat((spot * 1.30).toFixed(4)));
     }
   };
 
@@ -144,6 +144,15 @@ export default function PoolPage() {
           <span className="text-zinc-200">{OBLIVION_CONTRACTS.EKUBO_CORE_MAINNET.substring(0, 10)}...</span>
         </div>
       </div>
+
+      {/* Interactive Depth Chart Visualizer Component */}
+      <LiquidityVisualizer
+        spotPrice={oraclePrices.STRK}
+        lowerPrice={lowerPrice}
+        upperPrice={upperPrice}
+        tokenSymbol={token}
+        depositAmount={parseFloat(depositAmount) || 0}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Create Shielded Position (5 cols) */}
@@ -209,18 +218,20 @@ export default function PoolPage() {
               <div className="p-3 fin-inset space-y-1">
                 <div className="text-zinc-500 text-[10px]">Min Price (USD)</div>
                 <input
-                  type="text"
+                  type="number"
+                  step="0.0001"
                   value={lowerPrice}
-                  onChange={(e) => setLowerPrice(e.target.value)}
+                  onChange={(e) => setLowerPrice(parseFloat(e.target.value) || 0)}
                   className="w-full bg-transparent font-bold text-white text-sm outline-none tnum"
                 />
               </div>
               <div className="p-3 fin-inset space-y-1">
                 <div className="text-zinc-500 text-[10px]">Max Price (USD)</div>
                 <input
-                  type="text"
+                  type="number"
+                  step="0.0001"
                   value={upperPrice}
-                  onChange={(e) => setUpperPrice(e.target.value)}
+                  onChange={(e) => setUpperPrice(parseFloat(e.target.value) || 0)}
                   className="w-full bg-transparent font-bold text-white text-sm outline-none tnum"
                 />
               </div>

@@ -8,15 +8,12 @@ import {
   Activity, 
   RefreshCw, 
   CheckCircle2, 
-  Sliders, 
-  Zap, 
-  Info,
-  Copy,
-  Check
+  Zap
 } from "lucide-react";
 import { createShieldedNote, ShieldedNote } from "@/lib/poseidon";
 import { fetchLiveOraclePrices, SpotPrices } from "@/lib/oracle";
 import { TOKEN_ADDRESSES } from "@/lib/rpc";
+import MevComparisonGauge from "@/components/MevComparisonGauge";
 
 export default function SwapPage() {
   const [orderType, setOrderType] = useState<"MARKET" | "LIMIT">("MARKET");
@@ -34,7 +31,6 @@ export default function SwapPage() {
     USDC: 1.00,
     lastUpdated: "Just now",
   });
-  const [copied, setCopied] = useState(false);
 
   // Fetch real-time Pragma oracle spot price
   useEffect(() => {
@@ -87,12 +83,6 @@ export default function SwapPage() {
     }, 1200);
   };
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 space-y-6">
       {/* Header */}
@@ -118,6 +108,13 @@ export default function SwapPage() {
           <span className="text-amber-400 font-bold tnum text-sm">{countdown}s</span>
         </div>
       </div>
+
+      {/* Live MEV & Slippage Comparison Gauge Component */}
+      <MevComparisonGauge
+        sellAmount={parseFloat(sellAmount) || 0}
+        spotPrice={oraclePrices.STRK}
+        tokenSymbol="STRK"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Order Input Terminal (7 cols) */}

@@ -2,7 +2,7 @@
 pub mod OblivionVault {
     use starknet::{ContractAddress, get_caller_address, get_block_timestamp};
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess};
-    use oblivion_protocol::interfaces::IOblivionVault::{IOblivionVault, LPPosition};
+    use oblivion_protocol::interfaces::IOblivionVault::{IOblivionVault, LPPosition, OpenNoteDeposit};
 
     const FEE_PRECISION: u256 = 1_000_000_000_000_000_000_u256; // 1e18
 
@@ -50,7 +50,7 @@ pub mod OblivionVault {
     }
 
     #[constructor]
-    fn constructor(
+    pub fn constructor(
         ref self: ContractState,
         admin: ContractAddress,
         strk20_pool: ContractAddress,
@@ -157,6 +157,58 @@ pub mod OblivionVault {
             });
 
             total_payout
+        }
+
+        fn privacy_invoke(
+            ref self: ContractState,
+            note_id: felt252,
+            token: ContractAddress,
+            amount: u128,
+            lower_tick: i128,
+            upper_tick: i128
+        ) -> Span<OpenNoteDeposit> {
+            let caller = get_caller_address();
+            let pool = self.strk20_pool.read();
+            assert(caller == pool, 'Only STRK20 Pool allowed');
+            assert(amount > 0, 'Zero amount');
+
+            let amount_u256: u256 = amount.into();
+            let total_shares = self.total_shielded_shares.read();
+            let current_assets = self.total_vault_assets.read(token);
+
+            let minted_shares = if total_shares == 0 || current_assets == 0 {
+                amount_u256
+            } else {
+                (amount_u256 * total_shares) / current_assets
+            };
+
+            let current_fee_rate = self.accumulated_fees_per_share.read();
+            let fee_debt = (minted_shares * current_fee_rate) / FEE_PRECISION;
+
+            self.lp_positions.write(note_id, LPPosition {
+                lower_tick,
+                upper_tick,
+                shares: minted_shares,
+                fee_debt,
+                deposited_at: get_block_timestamp(),
+            });
+
+            self.total_shielded_shares.write(total_shares + minted_shares);
+            self.total_vault_assets.write(token, current_assets + amount_u256);
+
+            self.emit(ShieldedLPDeposited {
+                note_commitment: note_id,
+                shares_minted: minted_shares,
+                lower_tick,
+                upper_tick
+            });
+
+            let deposit = OpenNoteDeposit {
+                note_id,
+                token,
+                amount,
+            };
+            array![deposit].span()
         }
 
         fn harvest_and_compound(ref self: ContractState, token: ContractAddress) -> u256 {

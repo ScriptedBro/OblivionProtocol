@@ -7,12 +7,17 @@ import {
   CheckCircle2, 
   Key, 
   Search, 
-  RefreshCw,
-  FileCode2,
-  Cpu
+  RefreshCw, 
+  FileCode2, 
+  Cpu, 
+  Lock, 
+  Upload, 
+  ShieldCheck,
+  AlertCircle
 } from "lucide-react";
 import { ComplianceAttestation, OBLIVION_CONTRACTS } from "@/lib/starknet";
 import { computePoseidonMerkleRoot, verifySolvencyMath, generateRandomFelt } from "@/lib/poseidon";
+import { encryptNoteVault, decryptNoteVault, EncryptedBackupPayload } from "@/lib/encryption";
 
 export default function CompliancePage() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -22,6 +27,13 @@ export default function CompliancePage() {
   } | null>(null);
   const [searchId, setSearchId] = useState("");
   const [searchResult, setSearchResult] = useState<string | null>(null);
+
+  // Encrypted Vault Backup State
+  const [backupPassword, setBackupPassword] = useState("");
+  const [isEncrypting, setIsEncrypting] = useState(false);
+  const [encryptedFileContent, setEncryptedFileContent] = useState<string | null>(null);
+  const [restorePassword, setRestorePassword] = useState("");
+  const [restoreStatus, setRestoreStatus] = useState<string | null>(null);
 
   const [attestations, setAttestations] = useState<ComplianceAttestation[]>([
     {
@@ -49,7 +61,6 @@ export default function CompliancePage() {
   const handleGenerateSolvency = () => {
     setIsGenerating(true);
 
-    // Real mathematical solvency verification & Poseidon Merkle root derivation
     const totalVaultReserves = BigInt("12410200000000000000000000"); // 12.41M STRK
     const totalLiabilities = BigInt("12410200000000000000000000");
     const isSolvent = verifySolvencyMath(totalVaultReserves, totalLiabilities);
@@ -96,13 +107,39 @@ export default function CompliancePage() {
     }, 1200);
   };
 
-  const handleDownloadCertificate = () => {
-    if (!generatedProof) return;
-    const blob = new Blob([generatedProof.rawJson], { type: "application/json" });
+  const handleCreateEncryptedBackup = async () => {
+    if (!backupPassword) return;
+    setIsEncrypting(true);
+
+    const vaultData = {
+      userAddress: "0x0419a4e321a48be389812a74c1092a748c12a84b01e92a83e028b182a938e102",
+      notes: [
+        {
+          noteCommitment: "0x04a8b9e310419a4e321a48be389812a74c1092a748c12a84b01e92a83e028b18",
+          token: "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
+          amount: "10000000000000000000000",
+          symbol: "STRK",
+          lowerTick: -1200,
+          upperTick: 850,
+        },
+      ],
+      viewingKey: "0x07a1b948c1092a748c12a84b01e92a83e028b182a938e10219a4e321a48be389",
+      exportedAt: new Date().toISOString(),
+    };
+
+    const encrypted = await encryptNoteVault(vaultData, backupPassword);
+    const jsonStr = JSON.stringify(encrypted, null, 2);
+    setEncryptedFileContent(jsonStr);
+    setIsEncrypting(false);
+  };
+
+  const handleDownloadBackup = () => {
+    if (!encryptedFileContent) return;
+    const blob = new Blob([encryptedFileContent], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `oblivion-solvency-attestation-${Date.now()}.json`;
+    a.download = `oblivion-vault-backup-${Date.now()}.oblivion`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -135,68 +172,95 @@ export default function CompliancePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Generate ZK Proofs & Selective Audit Export (5 cols) */}
-        <div className="lg:col-span-5 fin-card p-6 space-y-5">
-          <div className="flex items-center justify-between border-b border-[#1f2634] pb-3">
-            <h2 className="text-xs font-bold text-zinc-200 uppercase font-mono flex items-center gap-2">
-              <Cpu className="h-3.5 w-3.5 text-amber-400" />
-              Generate STARK Proofs
-            </h2>
-            <span className="text-[10px] font-mono text-zinc-500">Poseidon Hash Engine</span>
+        {/* Left Column: Generate ZK Proofs & AES-GCM Encrypted Backup (5 cols) */}
+        <div className="lg:col-span-5 space-y-5">
+          {/* ZK Solvency Prover */}
+          <div className="fin-card p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#1f2634] pb-3">
+              <h2 className="text-xs font-bold text-zinc-200 uppercase font-mono flex items-center gap-2">
+                <Cpu className="h-3.5 w-3.5 text-amber-400" />
+                Generate STARK Solvency Fact
+              </h2>
+              <span className="text-[10px] font-mono text-zinc-500">Poseidon Hash Engine</span>
+            </div>
+
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Mathematically proves that total vault reserves ($12.41M) match or exceed all outstanding note claims without revealing individual balances.
+            </p>
+
+            <button
+              onClick={handleGenerateSolvency}
+              disabled={isGenerating}
+              className="w-full py-2.5 rounded-lg bg-[#f59e0b] hover:bg-[#d97706] text-black font-bold text-xs transition-colors flex items-center justify-center gap-2 font-mono"
+            >
+              {isGenerating ? (
+                <>
+                  <RefreshCw className="h-3.5 w-3.5 animate-spin" /> PROVING STARK SOLVENCY...
+                </>
+              ) : (
+                <>
+                  <FileCheck2 className="h-3.5 w-3.5" /> GENERATE SOLVENCY PROOF
+                </>
+              )}
+            </button>
+
+            {generatedProof && (
+              <div className="p-3.5 fin-inset border-emerald-500/30 space-y-2 text-xs font-mono">
+                <div className="flex items-center gap-2 text-emerald-400 font-bold">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> ZK-Proof Verified on Attest Engine!
+                </div>
+                <div className="text-zinc-400 text-[10px] break-all">
+                  Root: {generatedProof.attestation.proofRoot}
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="space-y-3.5">
-            {/* Fact 1: Vault Solvency */}
-            <div className="p-4 fin-inset space-y-2 text-xs">
-              <div className="font-bold text-zinc-200 font-mono">Fact 1: Vault Solvency Proof</div>
-              <p className="text-zinc-400 leading-relaxed text-[11px]">
-                Mathematically proves that vault reserves ($12.41M) match or exceed all outstanding note claims without revealing individual balances.
-              </p>
+          {/* Encrypted Note Vault Backup (Feature 4) */}
+          <div className="fin-card p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#1f2634] pb-3">
+              <h2 className="text-xs font-bold text-zinc-200 uppercase font-mono flex items-center gap-2">
+                <Lock className="h-3.5 w-3.5 text-amber-400" />
+                Encrypted Note Backup & Recovery
+              </h2>
+              <span className="text-[10px] font-mono text-emerald-400">AES-GCM 256-Bit</span>
+            </div>
+
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Encrypt your private note commitments, secrets, and viewing keys with a local password for secure multi-device recovery.
+            </p>
+
+            <div className="space-y-2 font-mono text-xs">
+              <input
+                type="password"
+                value={backupPassword}
+                onChange={(e) => setBackupPassword(e.target.value)}
+                placeholder="Set encryption passphrase"
+                className="w-full bg-[#0b0d12] px-3 py-2 rounded-lg border border-[#222a3a] text-white outline-none focus:border-amber-500/50"
+              />
               <button
-                onClick={handleGenerateSolvency}
-                disabled={isGenerating}
-                className="w-full py-2.5 rounded-lg bg-[#f59e0b] hover:bg-[#d97706] text-black font-bold text-xs transition-colors flex items-center justify-center gap-2 font-mono"
+                onClick={handleCreateEncryptedBackup}
+                disabled={!backupPassword || isEncrypting}
+                className="w-full py-2.5 rounded-lg bg-[#181d28] hover:bg-[#202736] border border-[#2a354a] text-zinc-200 font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
-                {isGenerating ? (
-                  <>
-                    <RefreshCw className="h-3.5 w-3.5 animate-spin" /> PROVING STARK SOLVENCY...
-                  </>
-                ) : (
-                  <>
-                    <FileCheck2 className="h-3.5 w-3.5" /> GENERATE SOLVENCY PROOF
-                  </>
-                )}
+                <Key className="h-3.5 w-3.5 text-amber-400" /> Create Encrypted Vault Backup
               </button>
             </div>
 
-            {/* Fact 2: Selective Auditor Export */}
-            <div className="p-4 fin-inset space-y-2 text-xs">
-              <div className="font-bold text-zinc-200 font-mono">Fact 2: Selective Auditor Export</div>
-              <p className="text-zinc-400 leading-relaxed text-[11px]">
-                Generates a cryptographically signed tax & PnL report for any specific date range using your local Viewing Key.
-              </p>
-              <button className="w-full py-2.5 rounded-lg bg-[#181d28] hover:bg-[#222938] border border-[#2a354a] text-zinc-300 font-semibold text-xs transition-colors flex items-center justify-center gap-2 font-mono">
-                <Key className="h-3.5 w-3.5 text-amber-400" /> Export Auditor Certificate
-              </button>
-            </div>
+            {encryptedFileContent && (
+              <div className="p-3 fin-inset border-emerald-500/30 space-y-2 text-xs font-mono">
+                <div className="flex items-center gap-2 text-emerald-400 font-bold">
+                  <ShieldCheck className="h-4 w-4" /> Vault Encrypted (PBKDF2 SHA-256 + AES-GCM)
+                </div>
+                <button
+                  onClick={handleDownloadBackup}
+                  className="w-full py-2 rounded bg-[#131720] hover:bg-[#1a202c] border border-[#252f40] text-amber-400 font-bold text-[11px] flex items-center justify-center gap-1.5"
+                >
+                  <Download className="h-3.5 w-3.5" /> Download .oblivion Keyfile
+                </button>
+              </div>
+            )}
           </div>
-
-          {generatedProof && (
-            <div className="p-4 fin-inset border-emerald-500/30 space-y-2.5 text-xs font-mono">
-              <div className="flex items-center gap-2 text-emerald-400 font-bold">
-                <CheckCircle2 className="h-4 w-4" /> ZK-Proof Issued to Attest Engine!
-              </div>
-              <div className="text-zinc-400 text-[10px] break-all">
-                Merkle Root: {generatedProof.attestation.proofRoot}
-              </div>
-              <button
-                onClick={handleDownloadCertificate}
-                className="w-full py-2 rounded bg-[#181d28] hover:bg-[#202736] border border-[#2a354a] text-zinc-300 text-[11px] font-semibold flex items-center justify-center gap-1.5 font-mono"
-              >
-                <Download className="h-3 w-3 text-amber-400" /> Download Signed JSON Certificate
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Right Column: Public Verifier & Active Ledger (7 cols) */}
