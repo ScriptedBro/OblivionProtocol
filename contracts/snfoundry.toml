@@ -1,0 +1,8 @@
+# Starknet Foundry configuration file
+# For more information visit https://foundry-rs.github.io/starknet-foundry/appendix/snfoundry-toml.html
+
+[sncast.default]
+url = "https://starknet-mainnet.public.blastapi.io"
+
+[sncast.sepolia]
+url = "https://starknet-sepolia.public.blastapi.io"

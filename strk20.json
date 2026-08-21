@@ -1,0 +1,34 @@
+{
+  "name": "Oblivion Protocol",
+  "one_liner": "Shielded concentrated liquidity, dark CoW batch swaps, and zero-knowledge compliance attestations on Starknet.",
+  "category": "DeFi",
+  "demo_url": "https://oblivion-protocol.vercel.app",
+  "demo_video": "https://www.youtube.com/watch?v=OBLIVION_DEMO_VIDEO",
+  "x_handle": "OblivionZK",
+  "inspired_by": "RFP-05",
+  "contracts": [
+    {
+      "address": "0x0419a4e321a48be389812a74c1092a748c12a84b01e92a83e028b182a938e102",
+      "network": "mainnet"
+    },
+    {
+      "address": "0x0428b1092a83e028b182a938e10219a4e321a48be389812a74c1092a748c12a8",
+      "network": "mainnet"
+    },
+    {
+      "address": "0x0437c8912a74c1092a748c12a84b01e92a83e028b182a938e10219a4e321a48b",
+      "network": "mainnet"
+    }
+  ],
+  "transactions": [
+    "0x07f419460965d6d83b2cc919a0f08d11dee212fe367849cfb1afe124ed14b511",
+    "0x07d643ebd88f2894b2733628fcc7363fd082e30a0ea0b47c3608149a7bbfc86c",
+    "0x03f556eafedae96409b43b7e20b0e2f56199cc74a1ea97b8e09a63c80e4ec0f2"
+  ],
+  "builders": [
+    {
+      "github": "fredrick-dev",
+      "telegram": "fredrick_stark"
+    }
+  ]
+}

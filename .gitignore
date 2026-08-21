@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+contracts/target/
+frontend/.next/
+frontend/out/
+dist/
+build/
+
+# Starknet Foundry cache
+contracts/.snfoundry_cache/
+.snfoundry_cache/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
