@@ -3,9 +3,9 @@ import Navbar from "@/components/Navbar";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Oblivion Protocol — Confidential Concentrated Liquidity & Dark AMM on Starknet",
+  title: "Oblivion Protocol — Confidential Financial Terminal on Starknet",
   description:
-    "Shielded concentrated liquidity on Ekubo, zero-MEV CoW batch swaps, and institutional zero-knowledge compliance attestations powered by STRK20.",
+    "Institutional shielded concentrated liquidity on Ekubo, zero-MEV CoW batch auctions, and zero-knowledge solvency compliance powered by STRK20.",
 };
 
 export default function RootLayout({
@@ -15,31 +15,25 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="bg-[#08080a] text-zinc-100 antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
-        <div className="relative min-h-screen flex flex-col">
-          {/* Subtle Ambient Background Gradients */}
-          <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-            <div className="absolute -top-40 left-1/4 h-96 w-96 rounded-full bg-emerald-500/10 blur-[120px]" />
-            <div className="absolute top-1/3 right-10 h-96 w-96 rounded-full bg-cyan-500/10 blur-[140px]" />
-            <div className="absolute bottom-10 left-1/3 h-96 w-96 rounded-full bg-emerald-600/5 blur-[120px]" />
-          </div>
+      <body className="bg-[#090a0d] text-slate-100 antialiased min-h-screen flex flex-col tech-grid">
+        <Navbar />
+        <main className="flex-1 pb-16">{children}</main>
 
-          <Navbar />
-          <main className="relative z-10 flex-1">{children}</main>
-
-          <footer className="relative z-10 border-t border-white/5 bg-[#08080a]/60 py-6 text-center text-xs text-zinc-500">
-            <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div>Oblivion Protocol · Starknet Mainnet STRK20 Private Sprint</div>
-              <div className="flex items-center gap-4 font-mono text-zinc-400">
-                <span>Ekubo CLMM</span>
-                <span>•</span>
-                <span>Pragma Oracles</span>
-                <span>•</span>
-                <span>ATTEST Compliance</span>
-              </div>
+        <footer className="border-t border-[#181d27] bg-[#0b0d12] py-5 text-xs text-zinc-500 font-mono">
+          <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+              <span>OBLIVION PROTOCOL · STARKNET STRK20 SPECIFICATION v1.0</span>
             </div>
-          </footer>
-        </div>
+            <div className="flex items-center gap-4 text-zinc-400">
+              <span className="hover:text-zinc-200 cursor-pointer">Ekubo Core CLMM</span>
+              <span>/</span>
+              <span className="hover:text-zinc-200 cursor-pointer">Pragma Feeds</span>
+              <span>/</span>
+              <span className="hover:text-zinc-200 cursor-pointer">ATTEST ZK-Engine</span>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );

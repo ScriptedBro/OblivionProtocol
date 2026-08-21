@@ -1,56 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #08080a;
-  --foreground: #f4f4f5;
+  --bg-main: #090a0d;
+  --panel-bg: #11141b;
+  --panel-surface: #161a23;
+  --panel-border: #222938;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-gold: #f59e0b;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  color: var(--text-primary);
+  background-color: var(--bg-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
   min-height: 100vh;
   overflow-x: hidden;
+  letter-spacing: -0.01em;
 }
 
-/* Custom Glassmorphism */
-.glass-panel {
-  background: rgba(16, 16, 20, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Precise Financial Terminal Borders & Panels */
+.fin-card {
+  background-color: #11141b;
+  border: 1px solid #1f2634;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
 }
 
-.glass-panel-glow {
-  background: rgba(16, 16, 20, 0.85);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  box-shadow: 0 0 30px rgba(16, 185, 129, 0.08);
+.fin-card-interactive {
+  background-color: #11141b;
+  border: 1px solid #1f2634;
+  border-radius: 12px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.fin-card-interactive:hover {
+  border-color: #333e54;
+  background-color: #141822;
 }
 
-.emerald-gradient-text {
-  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.fin-inset {
+  background-color: #0b0d12;
+  border: 1px solid #181d28;
+  border-radius: 8px;
 }
 
-/* Custom Scrollbar */
+.fin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  border: 1px solid #263042;
+  background-color: #141924;
+  color: #cbd5e1;
+}
+
+/* Subtle Technical Grid Background */
+.tech-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+}
+
+/* Monospace Numbers */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #08080a;
+  background: #090a0d;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e1e24;
-  border-radius: 3px;
+  background: #202736;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
+  background: #36425a;
 }
