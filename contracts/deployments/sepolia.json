@@ -1,0 +1,14 @@
+{
+  "network": "sepolia",
+  "deployed_at": "2026-08-21",
+  "deployer": "0xc19104ba97ede49a3b85019f855899ab86e0c41859a2823cb2270721841b30",
+  "contracts": {
+    "MockPool": "0x00ae61340348a20fe13f256d4f33203438563683a59117dfc7fe1d7cfd21396f",
+    "AttestEngine": "0x0103746eaabf31b727865b9da91b978ee5ca3d43a5563580d119497fd77d73e8",
+    "OblivionVault": "0x05108e8659b0024fa93c809b4ff05761e70c68e0b9e0c456547d83bd68cc0396",
+    "CoWMatcher": "0x0128a4513e035cfbb68f7b781661068d81873c1c942f5fab32997259ab719dda",
+    "YieldRouter": "0x021f65519e1cc5506a37a47bf7c127fc76748aa03a684c25ade5a2eb959461b7",
+    "SessionKeyManager": "0x0781512aa781a7c648fedf8dd0ea6dd146d4ba115dedd00aad654b7b1ce6ee39"
+  },
+  "notes": " | v2 redeploy: permissionless MockPool w/ ERC20 custody + paired Vault"
+}

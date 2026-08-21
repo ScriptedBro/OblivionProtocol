@@ -26,3 +26,4 @@ contracts/.snfoundry_cache/
 # Logs
 *.log
 npm-debug.log*
+.agents/mcp_config.json

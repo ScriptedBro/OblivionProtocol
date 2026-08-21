@@ -31,15 +31,10 @@ fn test_yield_router_lifecycle() {
     assert(routed == deposit_amt, 'Routed amt mismatch');
     assert(router.get_routed_balance(token_address) == deposit_amt, 'Balance mismatch');
 
-    // 2. Harvest lending yield (5% of 100_000 = 50)
-    let harvested = router.harvest_lending_yield(token_address);
-    assert(harvested == 50_u256, 'Harvested yield mismatch');
-    assert(router.get_total_harvested_yield(token_address) == 50_u256, 'Yield total mismatch');
-
-    // 3. Recall capital
+    // 2. Recall capital
     let recalled = router.recall_capital(token_address, 50_000_u256);
     assert(recalled == 50_000_u256, 'Recall amt mismatch');
-    assert(router.get_routed_balance(token_address) == 50_050_u256, 'Remaining balance mismatch');
+    assert(router.get_routed_balance(token_address) == 50_000_u256, 'Remaining balance mismatch');
 
     snforge_std::stop_cheat_caller_address(router.contract_address);
 }

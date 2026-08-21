@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dark Swap - Oblivion Protocol</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#c2652a",
+                        "surface-dim": "#dcd6cc",
+                        "inverse-primary": "#f0a878",
+                        "tertiary-fixed-dim": "#e8a0a0",
+                        "tertiary-container": "#d47070",
+                        "secondary-fixed": "#eae2da",
+                        "on-secondary-container": "#605850",
+                        "primary-fixed": "#fbe8d8",
+                        "outline-variant": "#d8d0c8",
+                        "primary-container": "#e08850",
+                        "on-secondary-fixed-variant": "#504840",
+                        "on-secondary-fixed": "#2a2420",
+                        "error": "#c0392b",
+                        "surface": "#faf5ee",
+                        "surface-bright": "#faf5ee",
+                        "on-primary-fixed": "#401a08",
+                        "secondary-fixed-dim": "#cec6be",
+                        "surface-container": "#f2ece4",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#faf5ee",
+                        "tertiary-fixed": "#fce0e0",
+                        "on-tertiary-container": "#3a2020",
+                        "background": "#faf5ee",
+                        "tertiary": "#8c3c3c",
+                        "error-container": "#fce4e0",
+                        "inverse-surface": "#3a302a",
+                        "surface-container-high": "#ece6dc",
+                        "on-surface-variant": "#605850",
+                        "on-primary-fixed-variant": "#8a4518",
+                        "on-tertiary-fixed-variant": "#6e3030",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#fbe8d8",
+                        "surface-container-low": "#f6f0e8",
+                        "surface-container-highest": "#e6e0d6",
+                        "on-error": "#ffffff",
+                        "outline": "#9a9088",
+                        "on-error-container": "#7a1a10",
+                        "primary-fixed-dim": "#f0a878",
+                        "secondary": "#78706a",
+                        "surface-variant": "#ece6dc",
+                        "secondary-container": "#eae2da",
+                        "primary": "#c2652a",
+                        "on-tertiary-fixed": "#2e1515",
+                        "on-background": "#3a302a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#3a302a",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["EB Garamond", "serif"],
+                        "display": ["EB Garamond", "serif"],
+                        "body": ["Manrope", "sans-serif"],
+                        "label": ["Manrope", "sans-serif"]
+                    },
+                    "fontSize": {}
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body antialiased min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-surface flex justify-between items-center px-8 py-4 w-full sticky top-0 z-50 bg-surface-container-low dark:bg-surface-container-high shadow-[0_2px_16px_rgba(58,48,42,0.04)]">
+<div class="flex items-center gap-8">
+<span class="font-headline text-2xl font-bold text-primary dark:text-primary-fixed-dim">Oblivion Protocol</span>
+<div class="hidden md:flex gap-6">
+<a class="font-body text-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Shielded LP</a>
+<a class="font-body text-sm text-primary dark:text-primary-fixed-dim border-b-2 border-primary pb-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors active:scale-[0.98] duration-200" href="#">Dark Swap</a>
+<a class="font-body text-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Attest</a>
+<a class="font-body text-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Vault</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex items-center gap-3 text-on-surface-variant">
+<button class="hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container"><span class="material-symbols-outlined" data-icon="shield">shield</span></button>
+<button class="hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container"><span class="material-symbols-outlined" data-icon="wifi_tethering">wifi_tethering</span></button>
+<button class="hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container"><span class="material-symbols-outlined" data-icon="query_stats">query_stats</span></button>
+</div>
+<button class="bg-primary text-on-primary font-label text-sm px-6 py-2 rounded-lg hover:bg-surface-tint transition-colors shadow-sm font-medium">
+                Connect Wallet
+            </button>
+</div>
+</nav>
+<!-- Main Layout -->
+<main class="flex-grow flex flex-col md:flex-row relative">
+<!-- SideNavBar (Hidden on Mobile) -->
+<aside class="hidden md:flex flex-col h-full py-6 bg-surface-container dark:bg-surface-container border-r border-outline-variant/60 w-64 sticky top-[76px]" style="height: calc(100vh - 76px);">
+<div class="px-6 mb-8">
+<h2 class="font-headline text-lg font-bold text-primary">Institutional Vault</h2>
+<p class="font-body text-xs text-on-surface-variant mt-1">Network: Starknet Mainnet</p>
+</div>
+<nav class="flex-grow px-2 space-y-1">
+<a class="flex items-center gap-3 font-label text-xs uppercase tracking-wider text-on-surface-variant dark:text-outline-variant px-4 py-3 hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="dashboard">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 font-label text-xs uppercase tracking-wider text-on-surface-variant dark:text-outline-variant px-4 py-3 hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="lock">lock</span>
+                    Shielded Assets
+                </a>
+<a class="flex items-center gap-3 font-label text-xs uppercase tracking-wider bg-primary-container text-on-primary-container rounded-lg font-bold px-4 py-3 hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all opacity-90 transition-opacity" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="verified_user">verified_user</span>
+                    ZK-Attestations
+                </a>
+<a class="flex items-center gap-3 font-label text-xs uppercase tracking-wider text-on-surface-variant dark:text-outline-variant px-4 py-3 hover:bg-surface-container-high rounded-lg hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="history">history</span>
+                    History
+                </a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full border border-primary text-primary font-label text-sm px-4 py-2 rounded-lg hover:bg-primary-fixed transition-colors mb-6 font-medium">
+                    Generate ZK-Proof
+                </button>
+<div class="space-y-1">
+<a class="flex items-center gap-3 font-label text-xs text-on-surface-variant hover:text-primary transition-colors py-2" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="security">security</span>
+                        Security Settings
+                    </a>
+<a class="flex items-center gap-3 font-label text-xs text-on-surface-variant hover:text-primary transition-colors py-2" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="logout">logout</span>
+                        Logout
+                    </a>
+</div>
+</div>
+</aside>
+<!-- Canvas -->
+<section class="flex-grow p-6 md:p-12 lg:p-16 max-w-7xl mx-auto w-full">
+<header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h1 class="font-headline text-4xl md:text-5xl text-on-background font-bold tracking-tight mb-2">Dark CoW Batch Swap</h1>
+<p class="font-body text-on-surface-variant text-lg max-w-2xl">Execute private, MEV-resistant block trades through cryptographic Coincidence of Wants matching.</p>
+</div>
+<div class="bg-surface-container-low border border-outline-variant/60 rounded-xl px-6 py-4 flex flex-col items-center min-w-[200px] shadow-sm">
+<span class="font-label text-xs uppercase tracking-wider text-on-surface-variant mb-1">Next Auction Clears In</span>
+<div class="font-headline text-3xl font-bold text-primary flex items-baseline gap-1">
+<span id="countdown">42</span><span class="text-xl text-primary/70">s</span>
+</div>
+<div class="w-full bg-surface-variant h-1 rounded-full mt-3 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 70%; animation: shrink 42s linear infinite;"></div>
+</div>
+</div>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Swap Widget -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<div class="bg-surface-container-lowest rounded-2xl p-6 md:p-8 border border-outline-variant/60 shadow-[0_2px_16px_rgba(58,48,42,0.04)] relative z-10">
+<!-- Toggle -->
+<div class="flex items-center justify-between mb-8 pb-4 border-b border-outline-variant/30">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="visibility_off">visibility_off</span>
+<span class="font-label font-medium text-sm text-on-surface">Order Book Transparency</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Pay Input -->
+<div class="bg-surface-container-low rounded-xl p-4 mb-2 border border-transparent hover:border-outline-variant/40 transition-colors focus-within:border-primary focus-within:bg-surface-container-lowest">
+<label class="font-label text-xs text-on-surface-variant mb-2 block">You Pay</label>
+<div class="flex justify-between items-center">
+<input class="bg-transparent border-none p-0 text-3xl font-headline font-medium text-on-surface focus:ring-0 w-full" placeholder="0.0" type="number" value="100.00"/>
+<button class="flex items-center gap-2 bg-surface hover:bg-surface-container transition-colors px-3 py-1.5 rounded-lg border border-outline-variant/60 shrink-0">
+<div class="w-6 h-6 rounded-full bg-[#627EEA] flex items-center justify-center text-white text-xs font-bold">E</div>
+<span class="font-label font-bold text-sm">ETH</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<div class="flex justify-between mt-2 font-body text-xs text-on-surface-variant">
+<span>~$184,520.00</span>
+<span>Balance: 142.5 ETH <button class="text-primary hover:underline ml-1">Max</button></span>
+</div>
+</div>
+<!-- Swap Icon -->
+<div class="flex justify-center -my-3 relative z-20">
+<button class="bg-surface-container rounded-full p-2 border-4 border-surface-container-lowest hover:bg-surface-variant transition-colors text-on-surface">
+<span class="material-symbols-outlined" data-icon="arrow_downward">arrow_downward</span>
+</button>
+</div>
+<!-- Receive Input -->
+<div class="bg-surface-container-low rounded-xl p-4 mt-2 border border-transparent hover:border-outline-variant/40 transition-colors focus-within:border-primary focus-within:bg-surface-container-lowest">
+<label class="font-label text-xs text-on-surface-variant mb-2 block">You Receive (Est. Batch Price)</label>
+<div class="flex justify-between items-center">
+<input class="bg-transparent border-none p-0 text-3xl font-headline font-medium text-on-surface focus:ring-0 w-full" placeholder="0.0" type="number" value="184250.50"/>
+<button class="flex items-center gap-2 bg-surface hover:bg-surface-container transition-colors px-3 py-1.5 rounded-lg border border-outline-variant/60 shrink-0">
+<div class="w-6 h-6 rounded-full bg-[#2775CA] flex items-center justify-center text-white text-xs font-bold">$</div>
+<span class="font-label font-bold text-sm">USDC</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+<div class="flex justify-between mt-2 font-body text-xs text-on-surface-variant">
+<span>1 ETH = 1,842.50 USDC (Pragma)</span>
+<span>Balance: 12.0 USDC</span>
+</div>
+</div>
+<!-- Actions -->
+<div class="mt-8">
+<button class="w-full bg-primary text-on-primary font-label text-lg font-bold py-4 rounded-xl hover:bg-surface-tint transition-all shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+                                Submit Shielded Order
+                            </button>
+<p class="text-center font-body text-xs text-on-surface-variant mt-4">Order will clear at uniform batch price. Zero slippage for matched volume.</p>
+</div>
+</div>
+</div>
+<!-- Info Panels -->
+<div class="lg:col-span-7 flex flex-col gap-6">
+<!-- CoW Explanation (Glassmorphism inspired) -->
+<div class="bg-surface-container/50 backdrop-blur-sm rounded-2xl p-8 border border-outline-variant/40 relative overflow-hidden">
+<!-- Decorative Abstract Background -->
+<div class="absolute -right-20 -top-20 w-64 h-64 bg-primary-fixed-dim/20 rounded-full blur-3xl pointer-events-none"></div>
+<h3 class="font-headline text-xl font-bold text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="merge_type">merge_type</span>
+                            Coincidence of Wants (CoW) Active
+                        </h3>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed mb-6">
+                            Your order is placed in an encrypted mempool. The solver network continuously attempts to match opposing orders off-chain before falling back to AMM liquidity. This guarantees execution at or better than the Pragma Oracle median price, protecting you from front-running and MEV extraction.
+                        </p>
+<div class="grid grid-cols-3 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="gpp_good">gpp_good</span>
+<span class="font-headline text-lg font-bold text-on-surface">MEV Proof</span>
+<span class="font-body text-xs text-on-surface-variant">Zero slippage</span>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="groups">groups</span>
+<span class="font-headline text-lg font-bold text-on-surface">P2P Match</span>
+<span class="font-body text-xs text-on-surface-variant">Direct clearing</span>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="payments">payments</span>
+<span class="font-headline text-lg font-bold text-on-surface">Optimal</span>
+<span class="font-body text-xs text-on-surface-variant">Uniform pricing</span>
+</div>
+</div>
+</div>
+<!-- Recent Batches -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 shadow-sm flex-grow flex flex-col overflow-hidden">
+<div class="px-6 py-4 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container/30">
+<h3 class="font-label font-bold text-sm uppercase tracking-wider text-on-surface">Recent Clearing Batches</h3>
+<button class="text-primary font-label text-xs hover:underline flex items-center gap-1">View All <span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span></button>
+</div>
+<div class="flex-grow overflow-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface/50 font-label text-xs text-on-surface-variant border-b border-outline-variant/30">
+<tr>
+<th class="px-6 py-3 font-medium">Batch ID</th>
+<th class="px-6 py-3 font-medium">Pair</th>
+<th class="px-6 py-3 font-medium text-right">Pragma Price</th>
+<th class="px-6 py-3 font-medium text-right">Shielded Vol.</th>
+<th class="px-6 py-3 font-medium text-right">Time</th>
+</tr>
+</thead>
+<tbody class="font-body text-sm divide-y divide-outline-variant/20">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 font-mono text-xs text-on-surface-variant">#9842A...</td>
+<td class="px-6 py-4 font-bold text-on-surface">ETH/USDC</td>
+<td class="px-6 py-4 text-right text-on-surface">$1,842.50</td>
+<td class="px-6 py-4 text-right font-medium text-primary">$4.2M</td>
+<td class="px-6 py-4 text-right text-on-surface-variant text-xs">2 mins ago</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 font-mono text-xs text-on-surface-variant">#98429...</td>
+<td class="px-6 py-4 font-bold text-on-surface">WBTC/ETH</td>
+<td class="px-6 py-4 text-right text-on-surface">14.22 ETH</td>
+<td class="px-6 py-4 text-right font-medium text-primary">$12.5M</td>
+<td class="px-6 py-4 text-right text-on-surface-variant text-xs">7 mins ago</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 font-mono text-xs text-on-surface-variant">#98428...</td>
+<td class="px-6 py-4 font-bold text-on-surface">STRK/USDC</td>
+<td class="px-6 py-4 text-right text-on-surface">$1.24</td>
+<td class="px-6 py-4 text-right font-medium text-primary">$850K</td>
+<td class="px-6 py-4 text-right text-on-surface-variant text-xs">12 mins ago</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<style>
+        @keyframes shrink {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+    </style>
+<script>
+        // Simple countdown logic for visual effect
+        let count = 42;
+        const countdownEl = document.getElementById('countdown');
+        
+        setInterval(() => {
+            count--;
+            if(count < 0) count = 60; // Reset for demo purposes
+            countdownEl.textContent = count;
+        }, 1000);
+    </script>
+</body></html>

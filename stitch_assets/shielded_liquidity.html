@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Oblivion Protocol - Shielded Assets</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "error-container": "#fce4e0",
+                "on-secondary-container": "#605850",
+                "outline-variant": "#d8d0c8",
+                "on-background": "#3a302a",
+                "on-tertiary": "#ffffff",
+                "surface-container-high": "#ece6dc",
+                "outline": "#9a9088",
+                "on-secondary-fixed": "#2a2420",
+                "on-error-container": "#7a1a10",
+                "surface-container-low": "#f6f0e8",
+                "secondary-container": "#eae2da",
+                "secondary": "#78706a",
+                "primary-fixed-dim": "#f0a878",
+                "inverse-primary": "#f0a878",
+                "primary-container": "#e08850",
+                "on-error": "#ffffff",
+                "on-secondary": "#ffffff",
+                "surface": "#faf5ee",
+                "tertiary-fixed-dim": "#e8a0a0",
+                "secondary-fixed": "#eae2da",
+                "tertiary-fixed": "#fce0e0",
+                "on-primary-fixed-variant": "#8a4518",
+                "surface-container-lowest": "#ffffff",
+                "tertiary": "#8c3c3c",
+                "on-primary": "#ffffff",
+                "on-secondary-fixed-variant": "#504840",
+                "on-primary-fixed": "#401a08",
+                "on-surface-variant": "#605850",
+                "inverse-surface": "#3a302a",
+                "tertiary-container": "#d47070",
+                "surface-variant": "#ece6dc",
+                "surface-dim": "#dcd6cc",
+                "inverse-on-surface": "#faf5ee",
+                "on-tertiary-container": "#3a2020",
+                "primary": "#c2652a",
+                "background": "#faf5ee",
+                "on-tertiary-fixed": "#2e1515",
+                "error": "#c0392b",
+                "secondary-fixed-dim": "#cec6be",
+                "on-primary-container": "#fbe8d8",
+                "on-surface": "#3a302a",
+                "primary-fixed": "#fbe8d8",
+                "surface-container": "#f2ece4",
+                "surface-tint": "#c2652a",
+                "surface-container-highest": "#e6e0d6",
+                "surface-bright": "#faf5ee",
+                "on-tertiary-fixed-variant": "#6e3030"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {},
+        "fontFamily": {
+                "headline": [
+                        "EB Garamond", "serif"
+                ],
+                "display": [
+                        "EB Garamond", "serif"
+                ],
+                "body": [
+                        "Manrope", "sans-serif"
+                ],
+                "label": [
+                        "Manrope", "sans-serif"
+                ]
+        },
+        "fontSize": {}
+},
+    },
+  }
+</script>
+<style>
+        .glass-panel {
+            background: rgba(250, 245, 238, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(216, 208, 200, 0.5);
+        }
+
+        .cyber-glow {
+            box-shadow: 0 0 15px rgba(194, 101, 42, 0.1), inset 0 0 10px rgba(194, 101, 42, 0.05);
+        }
+        
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #c2652a;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(194, 101, 42, 0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #d8d0c8;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body antialiased flex selection:bg-primary-container selection:text-primary">
+<!-- SideNavBar (Shared Component) -->
+<nav class="bg-surface-container text-primary Headlines: font-headline text-xl. Labels: font-label text-xs uppercase tracking-wider. h-screen w-64 fixed left-0 top-0 border-r border-outline-variant flex flex-col h-full py-6 z-40 hidden md:flex">
+<div class="px-6 mb-10 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">security</span>
+<div>
+<h1 class="font-headline text-lg font-bold text-primary">Oblivion Protocol</h1>
+<p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Starknet Mainnet</p>
+</div>
+</div>
+<div class="px-6 mb-8">
+<div class="glass-panel p-4 rounded-lg cyber-glow flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden border border-outline-variant">
+<img alt="User Account Profile" class="w-full h-full object-cover" data-alt="A macro photograph of an abstract, dark, glowing amber crystal formation, symbolizing secure and encrypted data. The lighting is low-key, moody, and highly technical, fitting a cypherpunk aesthetic with warm undertones. Rich deep blacks contrast with fiery orange highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHv8DX2rqUSxMBZyEO_PMqwfvIGvwTSNlxEaubQSFXIBNayneYVPOqdQQrwX6XrqJxHfZJizuA3If9Vtsy7WkowMJGbxgm02IBMq_7BhyD84rWp_IAjBCfExvZpFvCt8mcW7OL1I0YbDQ9qgaQ_Qg4ebP8yWP3hn6mCjA92NPUiTB1Zq5MUwDlKaWD_exa_E2b1JF42_wAQrYxuLGkwyo7jKTlbXkCyeh_9qjzbKaMBLfehWr5qAUQGw"/>
+</div>
+<div>
+<h2 class="font-headline text-sm font-semibold text-on-surface">Institutional Vault</h2>
+<p class="font-body text-xs text-on-surface-variant font-mono">0x7F...9bE2</p>
+</div>
+</div>
+</div>
+<ul class="flex flex-col gap-2 px-4 flex-grow">
+<li>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-all rounded-lg font-label text-sm tracking-wide" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 bg-primary text-on-primary rounded-lg font-bold px-4 py-3 transition-opacity font-label text-sm tracking-wide shadow-md" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">lock</span>
+                    Shielded Assets
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-all rounded-lg font-label text-sm tracking-wide" href="#">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+                    ZK-Attestations
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-all rounded-lg font-label text-sm tracking-wide" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span>
+                    History
+                </a>
+</li>
+</ul>
+<div class="px-6 mt-auto flex flex-col gap-4">
+<button class="w-full py-3 px-4 bg-transparent border border-primary text-primary hover:bg-primary/10 rounded-lg font-label text-xs uppercase tracking-widest transition-colors flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">memory</span>
+                Generate ZK-Proof
+            </button>
+<div class="h-px bg-outline-variant w-full my-2"></div>
+<a class="flex items-center gap-3 text-on-surface-variant px-2 py-2 hover:text-on-surface transition-colors font-label text-xs" href="#">
+<span class="material-symbols-outlined text-[18px]">security</span>
+                Security Settings
+            </a>
+<a class="flex items-center gap-3 text-error px-2 py-2 hover:text-error/80 transition-colors font-label text-xs" href="#">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+                Logout
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="md:ml-64 w-full min-h-screen relative overflow-hidden flex flex-col">
+<!-- TopNavBar (Shared Component - Mobile Only in this layout, but we'll adapt for responsive header) -->
+<header class="bg-surface text-primary Headlines: font-headline text-2xl. Body: font-body text-sm. docked full-width top-0 bg-surface-container-low shadow-sm flex justify-between items-center px-8 py-4 w-full sticky top-0 z-50 md:hidden border-b border-outline-variant">
+<div class="font-headline text-2xl font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">security</span>
+                Oblivion Protocol
+            </div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined hover:text-primary transition-colors">shield</span>
+<span class="material-symbols-outlined hover:text-primary transition-colors">wifi_tethering</span>
+</div>
+</header>
+<div class="flex-grow p-6 md:p-10 lg:p-12 max-w-7xl mx-auto w-full">
+<!-- Header Section -->
+<div class="mb-12 flex justify-between items-end flex-wrap gap-6">
+<div>
+<h2 class="font-headline text-4xl md:text-5xl font-semibold mb-2 tracking-tight text-on-surface">Shielded Liquidity</h2>
+<p class="font-body text-on-surface-variant text-sm max-w-xl">Manage concentrated liquidity positions with Zero-Knowledge privacy guarantees. Your active ranges and deposited amounts remain cryptographically obscured from public mempools.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-5 py-2.5 bg-surface text-on-surface text-sm font-label rounded border border-outline hover:bg-surface-container-high transition-colors flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+                        Network Stats
+                    </button>
+<button class="px-5 py-2.5 bg-primary text-on-primary text-sm font-label rounded hover:bg-primary/90 transition-colors flex items-center gap-2 shadow-md">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        New Position
+                    </button>
+</div>
+</div>
+<!-- Main Bento Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Active Notes List (Left Col) -->
+<div class="lg:col-span-7 flex flex-col gap-6">
+<div class="flex justify-between items-center border-b border-outline-variant pb-4">
+<h3 class="font-headline text-2xl text-on-surface">Active Shielded Notes</h3>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-surface-container rounded-full text-xs font-label text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">filter_list</span> Filter
+                            </span>
+</div>
+</div>
+<!-- Note Card 1 -->
+<div class="glass-panel p-6 rounded-xl hover:border-primary transition-colors cursor-pointer group shadow-sm bg-surface">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-[#1a1c29] border border-outline flex items-center justify-center z-10">
+<span class="font-body text-[10px] font-bold text-blue-400">STRK</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-[#2775ca] border border-outline flex items-center justify-center">
+<span class="font-body text-[10px] font-bold text-white">USDC</span>
+</div>
+</div>
+<div>
+<h4 class="font-headline text-lg text-on-surface group-hover:text-primary transition-colors">STRK / USDC</h4>
+<p class="font-body text-xs text-on-surface-variant font-mono">0.05% Fee Tier</p>
+</div>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-primary-container/30 text-primary border border-primary/20 rounded text-[10px] font-label uppercase tracking-widest flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">security</span> Shielded
+                                </span>
+<span class="px-2 py-1 bg-tertiary-container/30 text-tertiary border border-tertiary/20 rounded text-[10px] font-label uppercase tracking-widest flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">autorenew</span> Compounding
+                                </span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 mb-4 bg-surface-container-lowest p-4 rounded-lg border border-outline-variant">
+<div>
+<p class="text-[10px] font-label text-on-surface-variant uppercase tracking-wider mb-1">Min Tick</p>
+<p class="font-mono text-sm text-on-surface">1,840.50</p>
+</div>
+<div>
+<p class="text-[10px] font-label text-on-surface-variant uppercase tracking-wider mb-1">Max Tick</p>
+<p class="font-mono text-sm text-on-surface">2,150.00</p>
+</div>
+<div>
+<p class="text-[10px] font-label text-on-surface-variant uppercase tracking-wider mb-1">Est. TVL</p>
+<p class="font-mono text-sm text-on-surface blur-[4px] hover:blur-none transition-all duration-300">*********</p>
+</div>
+</div>
+<div class="flex justify-between items-center text-xs text-on-surface-variant">
+<span class="font-mono">Note ID: 0x8a...4f21</span>
+<span class="flex items-center gap-1 text-primary">In Range <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span></span>
+</div>
+</div>
+<!-- Note Card 2 -->
+<div class="glass-panel p-6 rounded-xl hover:border-primary transition-colors cursor-pointer group opacity-80 shadow-sm bg-surface">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-[#627eea] border border-outline flex items-center justify-center z-10">
+<span class="font-body text-[10px] font-bold text-white">ETH</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-[#2775ca] border border-outline flex items-center justify-center">
+<span class="font-body text-[10px] font-bold text-white">USDC</span>
+</div>
+</div>
+<div>
+<h4 class="font-headline text-lg text-on-surface group-hover:text-primary transition-colors">ETH / USDC</h4>
+<p class="font-body text-xs text-on-surface-variant font-mono">0.30% Fee Tier</p>
+</div>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-primary-container/30 text-primary border border-primary/20 rounded text-[10px] font-label uppercase tracking-widest flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">security</span> Shielded
+                                </span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 mb-4 bg-surface-container-lowest p-4 rounded-lg border border-outline-variant">
+<div>
+<p class="text-[10px] font-label text-on-surface-variant uppercase tracking-wider mb-1">Min Tick</p>
+<p class="font-mono text-sm text-on-surface">3,200.00</p>
+</div>
+<div>
+<p class="text-[10px] font-label text-on-surface-variant uppercase tracking-wider mb-1">Max Tick</p>
+<p class="font-mono text-sm text-on-surface">3,800.00</p>
+</div>
+<div>
+<p class="text-[10px] font-label text-on-surface-variant uppercase tracking-wider mb-1">Est. TVL</p>
+<p class="font-mono text-sm text-on-surface blur-[4px] hover:blur-none transition-all duration-300">*********</p>
+</div>
+</div>
+<div class="flex justify-between items-center text-xs text-on-surface-variant">
+<span class="font-mono">Note ID: 0x3c...9e7b</span>
+<span class="flex items-center gap-1 text-secondary">Out of Range <span class="w-2 h-2 rounded-full bg-secondary"></span></span>
+</div>
+</div>
+</div>
+<!-- New Private Position Form (Right Col) -->
+<div class="lg:col-span-5">
+<div class="glass-panel p-6 lg:p-8 rounded-2xl border border-outline-variant sticky top-24 shadow-lg bg-surface">
+<h3 class="font-headline text-2xl text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">add_circle</span>
+                            New Private Position
+                        </h3>
+<!-- Asset Pair Selector -->
+<div class="mb-6">
+<label class="block text-[11px] font-label text-on-surface-variant uppercase tracking-widest mb-2">Select Pair</label>
+<div class="flex justify-between items-center p-3 border border-outline-variant rounded-lg bg-surface-container-lowest cursor-pointer hover:border-primary transition-colors">
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-[#1a1c29] border border-outline flex items-center justify-center z-10">
+<span class="font-body text-[8px] font-bold text-blue-400">STRK</span>
+</div>
+<div class="w-6 h-6 rounded-full bg-[#2775ca] border border-outline flex items-center justify-center">
+<span class="font-body text-[8px] font-bold text-white">USDC</span>
+</div>
+</div>
+<span class="font-headline text-lg">STRK / USDC</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+<div class="flex justify-between mt-2 px-1">
+<span class="text-xs text-on-surface-variant">Current Price</span>
+<span class="font-mono text-xs text-primary">1,924.32 USDC</span>
+</div>
+</div>
+<!-- Concentrated Range Selector -->
+<div class="mb-8">
+<div class="flex justify-between items-end mb-2">
+<label class="block text-[11px] font-label text-on-surface-variant uppercase tracking-widest">Concentrated Range</label>
+<span class="text-xs text-on-surface-variant border border-outline-variant px-2 py-0.5 rounded">0.05% Fee</span>
+</div>
+<!-- Visual Range depiction -->
+<div class="h-24 w-full bg-surface-container-highest border border-outline-variant rounded-lg mb-4 relative overflow-hidden flex items-end">
+<!-- Mock liquidity curve -->
+<div class="w-full h-full absolute inset-0 opacity-20" style="background: linear-gradient(to top, rgba(194, 101, 42, 0.4) 0%, transparent 100%); clip-path: polygon(0 100%, 20% 80%, 40% 90%, 50% 20%, 60% 85%, 80% 70%, 100% 100%);"></div>
+<!-- Active Range overlay -->
+<div class="absolute inset-y-0 left-1/4 right-1/4 bg-primary/10 border-x border-primary/50 cyber-glow"></div>
+<!-- Current price line -->
+<div class="absolute inset-y-0 left-1/2 w-px bg-on-surface z-10"></div>
+</div>
+<div class="flex gap-4">
+<div class="flex-1 bg-surface-container-lowest p-3 rounded-lg border border-outline-variant focus-within:border-primary transition-colors">
+<p class="text-[10px] text-on-surface-variant mb-1 text-center">Min Price (USDC)</p>
+<input class="w-full bg-transparent text-center font-mono text-on-surface outline-none border-none p-0 focus:ring-0" type="text" value="1850.00"/>
+</div>
+<div class="flex-1 bg-surface-container-lowest p-3 rounded-lg border border-outline-variant focus-within:border-primary transition-colors">
+<p class="text-[10px] text-on-surface-variant mb-1 text-center">Max Price (USDC)</p>
+<input class="w-full bg-transparent text-center font-mono text-on-surface outline-none border-none p-0 focus:ring-0" type="text" value="2050.00"/>
+</div>
+</div>
+</div>
+<!-- Privacy Slider & Score -->
+<div class="mb-8 p-4 bg-surface-container rounded-lg border border-outline-variant relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex justify-between items-center mb-4">
+<label class="block text-[11px] font-label text-on-surface-variant uppercase tracking-widest flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">visibility_off</span> Obfuscation Level
+                                    </label>
+<div class="flex items-center gap-2">
+<span class="text-xs text-on-surface-variant">Privacy Score:</span>
+<span class="font-mono text-sm text-primary font-bold">92/100</span>
+</div>
+</div>
+<input class="w-full mb-2" max="100" min="1" type="range" value="75"/>
+<div class="flex justify-between text-[10px] text-on-surface-variant uppercase">
+<span>Standard</span>
+<span>Maximum (High Gas)</span>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant flex items-start gap-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary mt-0.5">info</span>
+<p class="text-xs text-on-surface-variant leading-relaxed">Higher obfuscation increases ZK-proof generation time but ensures your position is thoroughly mixed within the anonymity set.</p>
+</div>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full py-4 bg-primary text-on-primary font-headline text-lg font-bold rounded-lg hover:bg-primary/90 transition-all active:scale-[0.98] shadow-md">
+                            Generate Zero-Knowledge Proof
+                        </button>
+<p class="text-center text-[10px] text-on-surface-variant mt-3 font-mono">Requires starknet.js signing</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

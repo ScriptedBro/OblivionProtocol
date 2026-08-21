@@ -43,79 +43,79 @@ export default function MevComparisonGauge({
   }, [sellAmount, spotPrice]);
 
   return (
-    <div className="fin-card p-5 space-y-4 font-mono">
+    <div className="sahara-card p-6 space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#1f2634] pb-3">
+      <div className="flex items-center justify-between border-b border-[#e6e0d6] pb-3">
         <div className="flex items-center gap-2">
-          <Zap className="h-4 w-4 text-amber-400" />
-          <h3 className="text-xs font-bold text-white uppercase">
+          <Zap className="h-4 w-4 text-[#c2652a]" />
+          <h3 className="text-xs font-bold text-[#3a302a] uppercase font-body">
             Execution Value Matrix: Public AMM vs. Dark CoW
           </h3>
         </div>
-        <span className="fin-badge text-emerald-400 border-emerald-500/30 bg-emerald-950/20 text-[10px]">
+        <span className="sahara-badge text-[#c2652a] border-[#c2652a]/30 bg-[#fbe8d8]/60 text-[10px] font-body">
           +${calculations.totalMevSaved.toFixed(2)} NET VALUE SAVED
         </span>
       </div>
 
       {/* Side by Side Comparison Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-body">
         {/* Public AMM Card */}
-        <div className="p-3.5 fin-inset border-rose-500/20 space-y-2.5">
-          <div className="flex items-center justify-between text-rose-400 font-bold">
+        <div className="p-4 sahara-inset border-[#8c3c3c]/20 space-y-2.5">
+          <div className="flex items-center justify-between text-[#8c3c3c] font-bold">
             <span className="flex items-center gap-1.5">
               <AlertOctagon className="h-3.5 w-3.5" /> Public AMM Swap
             </span>
-            <span className="text-[10px] text-zinc-500">Mempool Exposed</span>
+            <span className="text-[10px] text-[#9a9088]">Mempool Exposed</span>
           </div>
 
-          <div className="space-y-1.5 text-[11px] text-zinc-400">
+          <div className="space-y-1.5 text-[11px] text-[#605850]">
             <div className="flex justify-between">
               <span>LP Swap Fee (0.30%):</span>
-              <span className="text-zinc-300">-${calculations.publicAmmFee.toFixed(2)}</span>
+              <span className="text-[#3a302a] font-mono">-${calculations.publicAmmFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span>Price Impact / Slippage:</span>
-              <span className="text-zinc-300">-${calculations.publicSlippage.toFixed(2)}</span>
+              <span className="text-[#3a302a] font-mono">-${calculations.publicSlippage.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span>Sandwich / MEV Exposure:</span>
-              <span className="text-rose-400">-${calculations.mevSandwichExposure.toFixed(2)}</span>
+              <span className="text-[#8c3c3c] font-mono">-${calculations.mevSandwichExposure.toFixed(2)}</span>
             </div>
           </div>
 
-          <div className="border-t border-[#1d222e] pt-2 flex justify-between font-bold text-zinc-200">
+          <div className="border-t border-[#d8d0c8] pt-2 flex justify-between font-bold text-[#3a302a]">
             <span>Estimated Payout:</span>
-            <span className="text-white tnum">${calculations.publicNetReceived.toFixed(2)}</span>
+            <span className="text-[#3a302a] tnum font-mono">${calculations.publicNetReceived.toFixed(2)}</span>
           </div>
         </div>
 
         {/* Oblivion Dark CoW Card */}
-        <div className="p-3.5 fin-inset border-emerald-500/30 bg-emerald-950/5 space-y-2.5">
-          <div className="flex items-center justify-between text-emerald-400 font-bold">
+        <div className="p-4 sahara-inset border-[#c2652a]/30 bg-[#fbe8d8]/20 space-y-2.5">
+          <div className="flex items-center justify-between text-[#c2652a] font-bold">
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5" /> Oblivion Dark CoW
             </span>
-            <span className="text-[10px] text-emerald-500">Poseidon Sealed</span>
+            <span className="text-[10px] text-[#c2652a] font-semibold">Poseidon Sealed</span>
           </div>
 
-          <div className="space-y-1.5 text-[11px] text-zinc-400">
+          <div className="space-y-1.5 text-[11px] text-[#605850]">
             <div className="flex justify-between">
               <span>Protocol Fee (0.05%):</span>
-              <span className="text-zinc-300">-${calculations.oblivionFee.toFixed(2)}</span>
+              <span className="text-[#3a302a] font-mono">-${calculations.oblivionFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span>Price Impact / Slippage:</span>
-              <span className="text-emerald-400 font-bold">$0.00 (Uniform)</span>
+              <span className="text-[#c2652a] font-bold font-mono">$0.00 (Uniform)</span>
             </div>
             <div className="flex justify-between">
               <span>MEV Protection:</span>
-              <span className="text-emerald-400 font-bold">100% Protected</span>
+              <span className="text-[#c2652a] font-bold">100% Protected</span>
             </div>
           </div>
 
-          <div className="border-t border-[#1d222e] pt-2 flex justify-between font-bold text-zinc-200">
+          <div className="border-t border-[#d8d0c8] pt-2 flex justify-between font-bold text-[#3a302a]">
             <span>Dark CoW Payout:</span>
-            <span className="text-emerald-400 font-bold tnum">
+            <span className="text-[#c2652a] font-bold tnum font-mono">
               ${calculations.oblivionNetReceived.toFixed(2)}
             </span>
           </div>
@@ -123,11 +123,11 @@ export default function MevComparisonGauge({
       </div>
 
       {/* Summary Banner */}
-      <div className="p-2.5 rounded bg-[#10141d] border border-[#1e2533] flex items-center justify-between text-xs text-zinc-300">
-        <span className="flex items-center gap-1 text-[11px] text-zinc-400">
-          <TrendingUp className="h-3.5 w-3.5 text-amber-400" /> Net Economic Benefit:
+      <div className="p-3 rounded-lg bg-[#f6f0e8] border border-[#e6e0d6] flex items-center justify-between text-xs text-[#3a302a] font-body">
+        <span className="flex items-center gap-1 text-[11px] text-[#605850]">
+          <TrendingUp className="h-3.5 w-3.5 text-[#c2652a]" /> Net Economic Benefit:
         </span>
-        <span className="text-amber-400 font-bold">
+        <span className="text-[#c2652a] font-bold">
           +{( (calculations.totalMevSaved / Math.max(1, calculations.volumeUsd)) * 100 ).toFixed(2)}% Increased Execution Efficiency
         </span>
       </div>

@@ -85,22 +85,22 @@ export default function LiquidityVisualizer({
   }, [spotPrice, upperPrice]);
 
   return (
-    <div className="fin-card p-5 space-y-4 font-mono">
+    <div className="sahara-card p-6 space-y-4">
       {/* Header & Status */}
-      <div className="flex items-center justify-between border-b border-[#1f2634] pb-3">
+      <div className="flex items-center justify-between border-b border-[#e6e0d6] pb-3">
         <div className="flex items-center gap-2">
-          <Sliders className="h-4 w-4 text-amber-400" />
-          <h3 className="text-xs font-bold text-white uppercase">
+          <Sliders className="h-4 w-4 text-[#c2652a]" />
+          <h3 className="text-xs font-bold text-[#3a302a] uppercase font-body">
             Ekubo Concentrated Liquidity Density Visualizer
           </h3>
         </div>
         <div className="flex items-center gap-2">
           {inRange ? (
-            <span className="fin-badge text-emerald-400 border-emerald-500/30 bg-emerald-950/20 text-[10px] flex items-center gap-1">
+            <span className="sahara-badge text-[#c2652a] border-[#c2652a]/30 bg-[#fbe8d8]/60 text-[10px] flex items-center gap-1 font-body">
               <CheckCircle2 className="h-3 w-3" /> ACTIVE IN-RANGE
             </span>
           ) : (
-            <span className="fin-badge text-amber-400 border-amber-500/30 bg-amber-950/20 text-[10px] flex items-center gap-1">
+            <span className="sahara-badge text-[#8c3c3c] border-[#8c3c3c]/30 bg-[#fce0e0] text-[10px] flex items-center gap-1 font-body">
               <AlertTriangle className="h-3 w-3" /> OUT OF BOUNDS
             </span>
           )}
@@ -108,12 +108,12 @@ export default function LiquidityVisualizer({
       </div>
 
       {/* SVG Depth Chart */}
-      <div className="relative rounded-lg bg-[#080a0e] border border-[#1b202c] p-3 overflow-hidden">
-        <svg viewBox="0 0 400 130" className="w-full h-32 overflow-visible">
+      <div className="relative rounded-xl bg-[#faf5ee] border border-[#d8d0c8] p-4 overflow-hidden">
+        <svg viewBox="0 0 400 130" className="w-full h-32 overflow-visible font-mono">
           <defs>
             <linearGradient id="liquidityGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.02" />
+              <stop offset="0%" stopColor="#c2652a" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#c2652a" stopOpacity="0.03" />
             </linearGradient>
           </defs>
 
@@ -123,15 +123,15 @@ export default function LiquidityVisualizer({
             y="10"
             width={Math.max(4, Math.abs(upperX - lowerX))}
             height="110"
-            fill="#f59e0b"
+            fill="#c2652a"
             fillOpacity="0.08"
-            stroke="#f59e0b"
+            stroke="#c2652a"
             strokeDasharray="2,2"
             strokeWidth="1"
           />
 
           {/* Bell Curve Liquidity Distribution */}
-          <path d={svgPath} fill="url(#liquidityGrad)" stroke="#f59e0b" strokeWidth="1.5" />
+          <path d={svgPath} fill="url(#liquidityGrad)" stroke="#c2652a" strokeWidth="2" />
 
           {/* Lower Bound Line */}
           <line
@@ -139,11 +139,11 @@ export default function LiquidityVisualizer({
             y1="15"
             x2={lowerX}
             y2="120"
-            stroke="#3b82f6"
+            stroke="#605850"
             strokeWidth="1.5"
             strokeDasharray="3,3"
           />
-          <text x={lowerX - 4} y="12" fill="#3b82f6" fontSize="9" textAnchor="end">
+          <text x={lowerX - 4} y="12" fill="#605850" fontSize="9" fontWeight="bold" textAnchor="end">
             Min ${lowerPrice.toFixed(4)}
           </text>
 
@@ -153,11 +153,11 @@ export default function LiquidityVisualizer({
             y1="15"
             x2={upperX}
             y2="120"
-            stroke="#3b82f6"
+            stroke="#605850"
             strokeWidth="1.5"
             strokeDasharray="3,3"
           />
-          <text x={upperX + 4} y="12" fill="#3b82f6" fontSize="9" textAnchor="start">
+          <text x={upperX + 4} y="12" fill="#605850" fontSize="9" fontWeight="bold" textAnchor="start">
             Max ${upperPrice.toFixed(4)}
           </text>
 
@@ -167,36 +167,36 @@ export default function LiquidityVisualizer({
             y1="10"
             x2={spotX}
             y2="120"
-            stroke="#10b981"
+            stroke="#c2652a"
             strokeWidth="2"
           />
-          <circle cx={spotX} cy="30" r="3.5" fill="#10b981" />
-          <text x={spotX} y="8" fill="#10b981" fontSize="9" fontWeight="bold" textAnchor="middle">
+          <circle cx={spotX} cy="30" r="4" fill="#c2652a" />
+          <text x={spotX} y="8" fill="#c2652a" fontSize="9" fontWeight="bold" textAnchor="middle">
             Spot ${spotPrice.toFixed(4)}
           </text>
         </svg>
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-3 gap-2.5 text-xs">
-        <div className="p-2.5 fin-inset space-y-0.5">
-          <div className="text-[10px] text-zinc-500">Capital Multiplier</div>
-          <div className="text-amber-400 font-bold text-sm flex items-center gap-1">
+      <div className="grid grid-cols-3 gap-3 text-xs font-body">
+        <div className="p-3 sahara-inset space-y-0.5">
+          <div className="text-[10px] text-[#9a9088] font-bold uppercase">Capital Multiplier</div>
+          <div className="text-[#c2652a] font-bold text-sm flex items-center gap-1 font-mono">
             <Zap className="h-3 w-3" /> {efficiencyMultiplier}
           </div>
         </div>
 
-        <div className="p-2.5 fin-inset space-y-0.5">
-          <div className="text-[10px] text-zinc-500">Est. 24h Yield</div>
-          <div className="text-emerald-400 font-bold text-sm">
+        <div className="p-3 sahara-inset space-y-0.5">
+          <div className="text-[10px] text-[#9a9088] font-bold uppercase">Est. 24h Yield</div>
+          <div className="text-[#3a302a] font-bold text-sm font-mono">
             +{((depositAmount * 0.386) / 365).toFixed(2)} {tokenSymbol}
           </div>
         </div>
 
-        <div className="p-2.5 fin-inset space-y-0.5">
-          <div className="text-[10px] text-zinc-500">Privacy Status</div>
-          <div className="text-white font-bold text-xs flex items-center gap-1">
-            <Shield className="h-3 w-3 text-amber-400" /> Poseidon Sealed
+        <div className="p-3 sahara-inset space-y-0.5">
+          <div className="text-[10px] text-[#9a9088] font-bold uppercase">Privacy Status</div>
+          <div className="text-[#3a302a] font-bold text-xs flex items-center gap-1">
+            <Shield className="h-3 w-3 text-[#c2652a]" /> Poseidon Sealed
           </div>
         </div>
       </div>

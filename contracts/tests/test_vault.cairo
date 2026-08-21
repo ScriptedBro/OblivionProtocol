@@ -33,7 +33,6 @@ fn test_vault_deposit_and_shares() {
     let token_address: ContractAddress = 0x11111.try_into().unwrap();
     let note_commitment: felt252 = 0xabcde;
 
-    // Prank caller as STRK20 pool
     snforge_std::start_cheat_caller_address(vault.contract_address, pool_address);
 
     vault.privacy_invoke_deposit(
@@ -56,7 +55,7 @@ fn test_vault_deposit_and_shares() {
 }
 
 #[test]
-fn test_vault_fee_compounding_and_withdraw() {
+fn test_vault_withdraw_exact_principal() {
     let (vault, pool_address) = setup_vault();
     let token_address: ContractAddress = 0x11111.try_into().unwrap();
     let note_commitment: felt252 = 0xabcde;
@@ -71,11 +70,6 @@ fn test_vault_fee_compounding_and_withdraw() {
         1000_i128
     );
 
-    // Harvest & compound fees
-    let harvested = vault.harvest_and_compound(token_address);
-    assert(harvested > 0, 'Harvested should be > 0');
-    assert(vault.get_accumulated_fees_per_share() > 0, 'Fee rate should increase');
-
     // Withdraw all shares
     let payout = vault.privacy_invoke_withdraw(
         note_commitment,
@@ -85,6 +79,7 @@ fn test_vault_fee_compounding_and_withdraw() {
 
     snforge_std::stop_cheat_caller_address(vault.contract_address);
 
-    assert(payout >= 1_000_000_u256, 'Payout should include yield');
+    assert(payout == 1_000_000_u256, 'Payout mismatch');
     assert(vault.get_total_shares() == 0, 'Shares should be 0 after burn');
+    assert(vault.get_total_assets(token_address) == 0, 'Assets should be 0');
 }

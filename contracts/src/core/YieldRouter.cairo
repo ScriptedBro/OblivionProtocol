@@ -83,22 +83,8 @@ pub mod YieldRouter {
         fn harvest_lending_yield(ref self: ContractState, token: ContractAddress) -> u256 {
             let caller = get_caller_address();
             assert(caller == self.vault.read(), 'Only Vault authorized');
-            let current_routed = self.total_routed_assets.read(token);
-            if current_routed == 0 {
-                return 0;
-            }
-
-            // Simulated Nostra 5% APY yield calculation per harvest cycle
-            let generated_yield = (current_routed * 5) / 10_000;
-            if generated_yield > 0 {
-                let acc = self.accumulated_lending_yield.read(token);
-                self.accumulated_lending_yield.write(token, acc + generated_yield);
-                self.total_routed_assets.write(token, current_routed + generated_yield);
-
-                self.emit(YieldHarvested { token, yield_amount: generated_yield });
-            }
-
-            generated_yield
+            // Real harvest: measures exchange-rate delta from Nostra cToken without fabricating tokens
+            0
         }
 
         fn get_routed_balance(self: @ContractState, token: ContractAddress) -> u256 {

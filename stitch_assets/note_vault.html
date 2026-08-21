@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Encrypted Note Vault - Oblivion Protocol</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: EB Garamond (Headline) & Manrope (Body) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#c2652a",
+                    "surface-dim": "#dcd6cc",
+                    "inverse-primary": "#f0a878",
+                    "tertiary-fixed-dim": "#e8a0a0",
+                    "tertiary-container": "#d47070",
+                    "secondary-fixed": "#eae2da",
+                    "on-secondary-container": "#605850",
+                    "primary-fixed": "#fbe8d8",
+                    "outline-variant": "#d8d0c8",
+                    "primary-container": "#e08850",
+                    "on-secondary-fixed-variant": "#504840",
+                    "on-secondary-fixed": "#2a2420",
+                    "error": "#c0392b",
+                    "surface": "#faf5ee",
+                    "surface-bright": "#faf5ee",
+                    "on-primary-fixed": "#401a08",
+                    "secondary-fixed-dim": "#cec6be",
+                    "surface-container": "#f2ece4",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#faf5ee",
+                    "tertiary-fixed": "#fce0e0",
+                    "on-tertiary-container": "#3a2020",
+                    "background": "#faf5ee",
+                    "tertiary": "#8c3c3c",
+                    "error-container": "#fce4e0",
+                    "inverse-surface": "#3a302a",
+                    "surface-container-high": "#ece6dc",
+                    "on-surface-variant": "#605850",
+                    "on-primary-fixed-variant": "#8a4518",
+                    "on-tertiary-fixed-variant": "#6e3030",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#fbe8d8",
+                    "surface-container-low": "#f6f0e8",
+                    "surface-container-highest": "#e6e0d6",
+                    "on-error": "#ffffff",
+                    "outline": "#9a9088",
+                    "on-error-container": "#7a1a10",
+                    "primary-fixed-dim": "#f0a878",
+                    "secondary": "#78706a",
+                    "surface-variant": "#ece6dc",
+                    "secondary-container": "#eae2da",
+                    "primary": "#c2652a",
+                    "on-tertiary-fixed": "#2e1515",
+                    "on-background": "#3a302a",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#3a302a",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["EB Garamond", "serif"],
+                    "display": ["EB Garamond", "serif"],
+                    "body": ["Manrope", "sans-serif"],
+                    "label": ["Manrope", "sans-serif"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopNavBar (Rendered exactly from JSON blueprint) -->
+<nav class="bg-surface dark:bg-surface flex justify-between items-center px-8 py-4 w-full sticky top-0 z-50 bg-surface-container-low dark:bg-surface-container-high shadow-sm shadow-[0_2px_16px_rgba(58,48,42,0.04)] hidden md:flex">
+<div class="font-headline text-2xl font-bold text-primary dark:text-primary-fixed-dim">
+            Oblivion Protocol
+        </div>
+<div class="flex space-x-8">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors font-headline text-2xl" href="#">Shielded LP</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors font-headline text-2xl" href="#">Dark Swap</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors font-headline text-2xl" href="#">Attest</a>
+<!-- Active State: Vault -->
+<a class="text-primary dark:text-primary-fixed-dim border-b-2 border-primary pb-1 font-headline text-2xl scale-[0.98] transition-transform duration-200 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Vault</a>
+</div>
+<div class="flex items-center space-x-6">
+<div class="flex space-x-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="shield">shield</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="wifi_tethering">wifi_tethering</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" data-icon="query_stats">query_stats</span>
+</div>
+<button class="bg-primary text-on-primary font-body text-sm px-5 py-2.5 rounded-lg hover:bg-surface-tint transition-colors">
+                Connect Wallet
+            </button>
+</div>
+</nav>
+<!-- Mobile TopNav (Simplified for small screens as per structural logic) -->
+<nav class="md:hidden bg-surface flex justify-between items-center px-6 py-4 w-full sticky top-0 z-50 shadow-sm border-b border-outline-variant/30">
+<div class="font-headline text-xl font-bold text-primary">Oblivion Protocol</div>
+<span class="material-symbols-outlined text-primary text-2xl">menu</span>
+</nav>
+<!-- Main Content Canvas -->
+<main class="max-w-6xl mx-auto px-6 py-12 lg:py-20 flex flex-col gap-12">
+<!-- Header Section -->
+<header class="text-center max-w-2xl mx-auto">
+<h1 class="font-headline text-5xl lg:text-6xl text-on-surface mb-4 tracking-tight">Encrypted Vault</h1>
+<p class="font-body text-on-surface-variant text-lg">
+                Client-side encrypted local storage. Your keys, your commitments. 
+                Data remains fully obfuscated until authorized via the Master Key.
+            </p>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
+<!-- Card 1: Master Key Unlock (Hero Focus) -->
+<section class="lg:col-span-12 bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-8 lg:p-12 shadow-[0_2px_16px_rgba(58,48,42,0.04)] relative overflow-hidden flex flex-col md:flex-row items-center gap-10">
+<!-- Decorative Abstract Image acting as a "Shield/Vault" visual metaphor in warm tones -->
+<div class="absolute -right-20 -top-20 opacity-10 pointer-events-none w-96 h-96">
+<img class="w-full h-full object-cover rounded-full blur-sm" data-alt="Abstract macro photography of brushed copper and warm brass geometric shapes forming a complex, secure locking mechanism. The lighting is soft and warm, reflecting the 'Sahara' design system aesthetic. Minimalist, high-end editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaCMcpLjXsqkgakUvlKyN0Dda_a937I_uu7HGkJ3h_6ZSb6ztP5ymebTys4LWX-FrmTsfzB2JQVBQ-a46r1v7ZTXzlMh_JEXKrkBmVVJ11xmprcErShCuuh9avRcG8UKHciA9HzfA23CcvurUeJJZP3PDzJ9jhlFKqmOgQSiOl7cgY7vTRjd9eAza9GbS5Vi0TJ1fA2zYHEuKbfawSgwr2Cu9iljsMO0jV_-QrmWyJii8IK-YIEkBUcQ"/>
+</div>
+<div class="flex-shrink-0 bg-primary-fixed p-6 rounded-full">
+<span class="material-symbols-outlined filled text-primary text-5xl lg:text-7xl" data-icon="lock" data-weight="fill">lock</span>
+</div>
+<div class="flex-grow w-full max-w-xl">
+<h2 class="font-headline text-3xl text-on-surface mb-2">Vault Access Locked</h2>
+<p class="font-body text-sm text-on-surface-variant mb-6">Enter your AES-256 Master Key to decrypt local note commitments. This key never leaves your device.</p>
+<div class="flex flex-col sm:flex-row gap-4 w-full">
+<div class="relative flex-grow">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">key</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-mono text-lg text-on-surface placeholder:text-outline/70" placeholder="Enter Master Key..." type="password"/>
+</div>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-lg font-body font-semibold hover:bg-surface-tint transition-colors flex items-center justify-center gap-2 whitespace-nowrap shadow-sm">
+                            Unlock Vault
+                            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Card 2: Active Note Commitments (List View) -->
+<section class="lg:col-span-8 bg-surface-container-low rounded-2xl p-8 shadow-[0_2px_16px_rgba(58,48,42,0.04)] flex flex-col h-full border border-surface-dim/30">
+<div class="flex justify-between items-center mb-8 pb-4 border-b border-outline-variant/40">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">inventory_2</span>
+<h3 class="font-headline text-2xl text-on-surface">Active Commitments</h3>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase">Encrypted</span>
+</div>
+<!-- Obfuscated List (Simulating locked state) -->
+<div class="flex-grow flex flex-col gap-4">
+<!-- Item 1 -->
+<div class="flex items-center justify-between p-4 bg-surface rounded-xl border border-outline-variant/30 hover:border-outline-variant transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">shield_locked</span>
+</div>
+<div>
+<div class="font-mono text-sm text-on-surface">0x7F9A...B32C</div>
+<div class="font-body text-xs text-on-surface-variant">Encrypted Note Fragment</div>
+</div>
+</div>
+<div class="flex gap-2 opacity-50 pointer-events-none group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary-fixed rounded-md transition-colors" title="Export Backup">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary-fixed rounded-md transition-colors" title="Sync Node">
+<span class="material-symbols-outlined text-xl">sync</span>
+</button>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between p-4 bg-surface rounded-xl border border-outline-variant/30 hover:border-outline-variant transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">shield_locked</span>
+</div>
+<div>
+<div class="font-mono text-sm text-on-surface">0x1A4D...9E8F</div>
+<div class="font-body text-xs text-on-surface-variant">Encrypted Note Fragment</div>
+</div>
+</div>
+<div class="flex gap-2 opacity-50 pointer-events-none group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary-fixed rounded-md transition-colors">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary-fixed rounded-md transition-colors">
+<span class="material-symbols-outlined text-xl">sync</span>
+</button>
+</div>
+</div>
+<!-- Empty/Placeholder State text -->
+<div class="mt-auto pt-6 text-center text-sm font-body text-outline">
+<p>Unlock the vault to reveal plaintext names and full management options.</p>
+</div>
+</div>
+</section>
+<!-- Card 3: Emergency Recovery (Warning Zone) -->
+<section class="lg:col-span-4 bg-error-container/40 rounded-2xl p-8 border border-error-container flex flex-col h-full relative overflow-hidden">
+<!-- Subtle warning background pattern -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#c0392b 1px, transparent 1px); background-size: 16px 16px;"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-error text-3xl">warning</span>
+<h3 class="font-headline text-2xl text-on-error-container">Emergency Recovery</h3>
+</div>
+<p class="font-body text-sm text-on-error-container/80 mb-6 leading-relaxed">
+                        If you lose your Master Key, the only way to restore your encrypted note commitments is via your 24-word root seed phrase.
+                    </p>
+<div class="bg-surface p-5 rounded-xl border border-error/20 mb-6 shadow-sm">
+<p class="font-body text-xs text-on-surface-variant text-center">
+                            Never share this phrase. Protocol validators cannot recover lost seed phrases.
+                        </p>
+</div>
+<button class="w-full bg-transparent border-2 border-error text-error hover:bg-error hover:text-on-error px-4 py-3 rounded-lg font-body font-bold transition-colors flex justify-center items-center gap-2 mt-auto">
+<span class="material-symbols-outlined text-sm">settings_backup_restore</span>
+                        Initiate Restoration
+                    </button>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile Only) - Suppressed as per rule for task-focused/dashboard screens, but included structurally if needed. Decided to omit for a cleaner security canvas. -->
+</body></html>

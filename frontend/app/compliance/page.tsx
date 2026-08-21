@@ -1,347 +1,381 @@
 "use client";
 
-import { useState } from "react";
-import { 
-  FileCheck2, 
-  Download, 
-  CheckCircle2, 
-  Key, 
-  Search, 
-  RefreshCw, 
-  FileCode2, 
-  Cpu, 
-  Lock, 
-  Upload, 
+import { useCallback, useEffect, useState } from "react";
+import {
+  FileCheck2,
+  RefreshCw,
+  CheckCircle2,
+  AlertTriangle,
+  ExternalLink,
+  Search,
   ShieldCheck,
-  AlertCircle
 } from "lucide-react";
-import { ComplianceAttestation, OBLIVION_CONTRACTS } from "@/lib/starknet";
-import { computePoseidonMerkleRoot, verifySolvencyMath, generateRandomFelt } from "@/lib/poseidon";
-import { encryptNoteVault, decryptNoteVault, EncryptedBackupPayload } from "@/lib/encryption";
+import { uint256 } from "starknet";
+import { getProvider, getVault, getAttestEngine } from "@/lib/starknet";
+import { useWallet } from "@/lib/wallet";
+
+const ETH =
+  "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7";
+
+const FACT_TYPES: Record<string, string> = {
+  "1": "Solvency",
+  "2": "Clean Provenance",
+  "3": "PnL Audit",
+};
+
+interface RecordView {
+  subjectHash: string;
+  factType: string;
+  isValid: boolean;
+  issuedAt: number;
+  expiresAt: number;
+}
+
+function fmtEth(raw: bigint): string {
+  const whole = raw / 10n ** 18n;
+  const frac = (raw % 10n ** 18n).toString().padStart(18, "0").slice(0, 4);
+  return `${whole.toLocaleString("en-US")}.${frac}`;
+}
 
 export default function CompliancePage() {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedProof, setGeneratedProof] = useState<{
-    attestation: ComplianceAttestation;
-    rawJson: string;
-  } | null>(null);
-  const [searchId, setSearchId] = useState("");
-  const [searchResult, setSearchResult] = useState<string | null>(null);
+  const { account } = useWallet();
+  const [busy, setBusy] = useState<"" | "issue" | "solvency">("");
+  const [status, setStatus] = useState<{ ok: boolean; msg: string; tx?: string } | null>(null);
 
-  // Encrypted Vault Backup State
-  const [backupPassword, setBackupPassword] = useState("");
-  const [isEncrypting, setIsEncrypting] = useState(false);
-  const [encryptedFileContent, setEncryptedFileContent] = useState<string | null>(null);
-  const [restorePassword, setRestorePassword] = useState("");
-  const [restoreStatus, setRestoreStatus] = useState<string | null>(null);
+  // issue form
+  const [attId, setAttId] = useState("");
+  const [subjectHash, setSubjectHash] = useState("");
+  const [factType, setFactType] = useState("1");
+  const [durationDays, setDurationDays] = useState("30");
 
-  const [attestations, setAttestations] = useState<ComplianceAttestation[]>([
-    {
-      id: "0x09f1a4e321...44a1",
-      subjectHash: OBLIVION_CONTRACTS.OBLIVION_VAULT,
-      factType: "Proof of Pool Solvency (Assets ≥ Liabilities)",
-      description: "Mathematical STARK proof: Vault balance ($12.41M) matches or exceeds total active note share claims.",
-      issuedAt: "2026-08-21 08:30 UTC",
-      expiresAt: "2026-08-28 08:30 UTC",
-      isValid: true,
-      proofRoot: "0x07f419460965d6d83b2cc919a0f08d11dee212fe367849cfb1afe124ed14b511",
-    },
-    {
-      id: "0x038c92a104...12b9",
-      subjectHash: OBLIVION_CONTRACTS.STRK20_MAINNET_POOL,
-      factType: "FPI Sanctions Clean Provenance",
-      description: "Cryptographic verification of FPI on-chain deposit screening signatures without revealing depositing wallet.",
-      issuedAt: "2026-08-20 14:15 UTC",
-      expiresAt: "2026-08-27 14:15 UTC",
-      isValid: true,
-      proofRoot: "0x03f556eafedae96409b43b7e20b0e2f56199cc74a1ea97b8e09a63c80e4ec0f2",
-    },
-  ]);
+  // lookup
+  const [lookupId, setLookupId] = useState("");
+  const [record, setRecord] = useState<RecordView | null>(null);
+  const [lookupErr, setLookupErr] = useState("");
 
-  const handleGenerateSolvency = () => {
-    setIsGenerating(true);
+  // live solvency
+  const [vaultAssets, setVaultAssets] = useState<bigint | null>(null);
+  const [vaultShares, setVaultShares] = useState<bigint | null>(null);
+  const [solvencyResult, setSolvencyResult] = useState<boolean | null>(null);
 
-    const totalVaultReserves = BigInt("12410200000000000000000000"); // 12.41M STRK
-    const totalLiabilities = BigInt("12410200000000000000000000");
-    const isSolvent = verifySolvencyMath(totalVaultReserves, totalLiabilities);
+  const refreshVault = useCallback(async () => {
+    try {
+      const vault = getVault(getProvider());
+      const [assets, shares] = await Promise.all([
+        vault.get_total_assets(ETH),
+        vault.get_token_shares(ETH),
+      ]);
+      setVaultAssets(uint256.uint256ToBN(assets));
+      setVaultShares(uint256.uint256ToBN(shares));
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
-    const leaves = [
-      "0x04a8bc9120de847c1092a748c12a84b01e92a83e028b182a938e10219a4e321a",
-      "0x01f9cd84a2b182a938e10219a4e321a48be389812a74c1092a748c12a84b01e9",
-      "0x07f419460965d6d83b2cc919a0f08d11dee212fe367849cfb1afe124ed14b511",
-    ];
-    const merkleRoot = computePoseidonMerkleRoot(leaves);
-    const attId = `0x0${generateRandomFelt().toString(16).substring(0, 8)}...${generateRandomFelt().toString(16).substring(0, 4)}`;
+  useEffect(() => {
+    refreshVault();
+    const t = setInterval(refreshVault, 20000);
+    return () => clearInterval(t);
+  }, [refreshVault]);
 
-    const newAtt: ComplianceAttestation = {
-      id: attId,
-      subjectHash: OBLIVION_CONTRACTS.OBLIVION_VAULT,
-      factType: "Proof of Pool Solvency (Assets ≥ Liabilities)",
-      description: `Cryptographic STARK Solvency: Vault balance (${totalVaultReserves / (BigInt(10) ** BigInt(18))} STRK) ≥ note liabilities.`,
-      issuedAt: new Date().toUTCString(),
-      expiresAt: new Date(Date.now() + 7 * 86400000).toUTCString(),
-      isValid: isSolvent,
-      proofRoot: merkleRoot,
-    };
-
-    const auditCertificate = {
-      protocol: "Oblivion Protocol",
-      standard: "Starknet STRK20 Compliance-First Fact Specification v1.0",
-      attestationId: attId,
-      factType: "SOLVENCY_PROOF",
-      vaultAddress: OBLIVION_CONTRACTS.OBLIVION_VAULT,
-      merkleRoot,
-      leavesCount: leaves.length,
-      mathematicalSolvencyVerified: isSolvent,
-      issuedTimestamp: Date.now(),
-      verificationContract: OBLIVION_CONTRACTS.ATTEST_ENGINE,
-    };
-
-    setTimeout(() => {
-      setIsGenerating(false);
-      setGeneratedProof({
-        attestation: newAtt,
-        rawJson: JSON.stringify(auditCertificate, null, 2),
+  const handleIssue = async () => {
+    if (!account) return;
+    if (!attId || !subjectHash.startsWith("0x")) {
+      setStatus({ ok: false, msg: "Provide an attestation ID and a subject hash (0x…)." });
+      return;
+    }
+    setBusy("issue");
+    setStatus(null);
+    try {
+      const engine = getAttestEngine(account);
+      const res = await engine.verify_and_issue_attestation(
+        attId,
+        subjectHash,
+        factType,
+        [], // proof payload — testnet engine validates structure only
+        Math.max(1, parseInt(durationDays || "30", 10)) * 86400
+      );
+      await getProvider().waitForTransaction(res.transaction_hash);
+      setStatus({
+        ok: true,
+        msg: `Attestation "${attId}" issued (${FACT_TYPES[factType]}).`,
+        tx: res.transaction_hash,
       });
-      setAttestations([newAtt, ...attestations]);
-    }, 1200);
+      setLookupId(attId);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message.split("\n")[0] : String(e);
+      setStatus({ ok: false, msg: `Issue failed: ${msg}` });
+    } finally {
+      setBusy("");
+    }
   };
 
-  const handleCreateEncryptedBackup = async () => {
-    if (!backupPassword) return;
-    setIsEncrypting(true);
-
-    const vaultData = {
-      userAddress: "0x0419a4e321a48be389812a74c1092a748c12a84b01e92a83e028b182a938e102",
-      notes: [
-        {
-          noteCommitment: "0x04a8b9e310419a4e321a48be389812a74c1092a748c12a84b01e92a83e028b18",
-          token: "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
-          amount: "10000000000000000000000",
-          symbol: "STRK",
-          lowerTick: -1200,
-          upperTick: 850,
-        },
-      ],
-      viewingKey: "0x07a1b948c1092a748c12a84b01e92a83e028b182a938e10219a4e321a48be389",
-      exportedAt: new Date().toISOString(),
-    };
-
-    const encrypted = await encryptNoteVault(vaultData, backupPassword);
-    const jsonStr = JSON.stringify(encrypted, null, 2);
-    setEncryptedFileContent(jsonStr);
-    setIsEncrypting(false);
+  const handleLookup = async () => {
+    setLookupErr("");
+    setRecord(null);
+    if (!lookupId) return;
+    try {
+      const engine = getAttestEngine(getProvider());
+      const r = await engine.get_attestation(lookupId);
+      let valid = false;
+      try {
+        valid = await engine.is_attestation_valid(lookupId);
+      } catch {
+        valid = Boolean(r.is_valid);
+      }
+      setRecord({
+        subjectHash: r.subject_hash,
+        factType: String(r.fact_type),
+        isValid: valid,
+        issuedAt: Number(r.issued_at),
+        expiresAt: Number(r.expires_at),
+      });
+    } catch {
+      setLookupErr("No attestation found for that ID on this chain.");
+    }
   };
 
-  const handleDownloadBackup = () => {
-    if (!encryptedFileContent) return;
-    const blob = new Blob([encryptedFileContent], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `oblivion-vault-backup-${Date.now()}.oblivion`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleVerify = () => {
-    if (!searchId) return;
-    setSearchResult("VALID: Attestation verified on-chain via AttestEngine.cairo [Poseidon Root Match]");
+  const handleSolvencyProof = async () => {
+    if (!account || vaultAssets === null || vaultShares === null) return;
+    setBusy("solvency");
+    setStatus(null);
+    try {
+      const engine = getAttestEngine(account);
+      const res = await engine.verify_solvency_proof(
+        uint256.bnToUint256(vaultAssets),
+        uint256.bnToUint256(vaultShares),
+        []
+      );
+      setSolvencyResult(Boolean(res));
+      setStatus({
+        ok: true,
+        msg: `Solvency check executed against live vault state: ${res ? "PROVEN solvent" : "NOT proven"}.`,
+      });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message.split("\n")[0] : String(e);
+      setStatus({ ok: false, msg: `Solvency proof failed: ${msg}` });
+    } finally {
+      setBusy("");
+    }
   };
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1f2634] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d8d0c8] pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-white tracking-tight">ATTEST Compliance & Solvency Portal</h1>
-            <span className="fin-badge text-amber-400 border-amber-500/30 bg-amber-950/20">
-              INSTITUTIONAL ZK AUDITING
+            <h1 className="text-3xl font-bold text-[#3a302a] tracking-tight font-headline">
+              ATTEST Engine
+            </h1>
+            <span className="sahara-badge text-[#c2652a] border-[#c2652a]/30 bg-[#fbe8d8]/60 font-body">
+              ZK COMPLIANCE
             </span>
           </div>
-          <p className="text-xs text-zinc-400 mt-1">
-            Export verifiable Zero-Knowledge Proofs of Solvency and sanctions-free provenance on demand for institutional auditors.
+          <p className="text-xs text-[#605850] mt-1 font-body">
+            On-chain attestations over hashed subjects: prove facts about
+            shielded capital without revealing it.
           </p>
         </div>
-
-        <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
-          <span>Attest Engine:</span>
-          <span className="text-zinc-200">{OBLIVION_CONTRACTS.ATTEST_ENGINE.substring(0, 10)}...</span>
+        <div className="text-xs font-mono text-[#605850] sahara-card px-4 py-2.5">
+          <span className="text-[#9a9088]">Engine:</span>{" "}
+          <a
+            href="https://sepolia.voyager.online/contract/0x0103746eaabf31b727865b9da91b978ee5ca3d43a5563580d119497fd77d73e8"
+            target="_blank"
+            rel="noreferrer"
+            className="text-[#c2652a] font-semibold inline-flex items-center gap-1"
+          >
+            AttestEngine <ExternalLink className="h-3 w-3" />
+          </a>
         </div>
       </div>
 
+      {!account && (
+        <div className="p-4 sahara-inset border-[#c2652a]/40 text-xs font-body text-[#605850] flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-[#c2652a] shrink-0" />
+          Connect a wallet to issue attestations or run the solvency proof. Lookups are public.
+        </div>
+      )}
+
+      {status && (
+        <div
+          className={`p-4 sahara-inset text-xs font-mono flex items-start gap-2 ${
+            status.ok
+              ? "border-[#c2652a]/40 text-[#c2652a] bg-[#fbe8d8]/30"
+              : "border-[#8c3c3c]/40 text-[#8c3c3c] bg-[#8c3c3c]/5"
+          }`}
+        >
+          {status.ok ? (
+            <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+          ) : (
+            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+          )}
+          <span className="break-all">
+            {status.msg}
+            {status.tx && (
+              <>
+                {" "}
+                <a href={`https://sepolia.voyager.online/tx/${status.tx}`} target="_blank" rel="noreferrer" className="underline inline-flex items-center gap-1">
+                  tx <ExternalLink className="h-3 w-3" />
+                </a>
+              </>
+            )}
+          </span>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Generate ZK Proofs & AES-GCM Encrypted Backup (5 cols) */}
-        <div className="lg:col-span-5 space-y-5">
-          {/* ZK Solvency Prover */}
-          <div className="fin-card p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#1f2634] pb-3">
-              <h2 className="text-xs font-bold text-zinc-200 uppercase font-mono flex items-center gap-2">
-                <Cpu className="h-3.5 w-3.5 text-amber-400" />
-                Generate STARK Solvency Fact
-              </h2>
-              <span className="text-[10px] font-mono text-zinc-500">Poseidon Hash Engine</span>
+        {/* Issue */}
+        <div className="lg:col-span-5 sahara-card p-6 sm:p-8 space-y-4">
+          <h2 className="text-xs font-bold text-[#3a302a] uppercase font-body flex items-center gap-2 border-b border-[#e6e0d6] pb-3">
+            <FileCheck2 className="h-3.5 w-3.5 text-[#c2652a]" /> Issue Attestation
+          </h2>
+          <div className="p-3 sahara-inset space-y-1 text-xs font-body">
+            <div className="text-[#9a9088] text-[10px] uppercase font-bold">Attestation ID</div>
+            <input
+              value={attId}
+              onChange={(e) => setAttId(e.target.value)}
+              placeholder="vault-solvency-aug21"
+              className="w-full bg-transparent font-bold text-[#3a302a] outline-none"
+            />
+          </div>
+          <div className="p-3 sahara-inset space-y-1 text-xs font-body">
+            <div className="text-[#9a9088] text-[10px] uppercase font-bold">Subject Hash (0x…)</div>
+            <input
+              value={subjectHash}
+              onChange={(e) => setSubjectHash(e.target.value)}
+              placeholder="0x…"
+              className="w-full bg-transparent font-mono font-semibold text-[#3a302a] outline-none break-all"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-xs font-body">
+            <div className="p-3 sahara-inset space-y-1">
+              <div className="text-[#9a9088] text-[10px] uppercase font-bold">Fact Type</div>
+              <select
+                value={factType}
+                onChange={(e) => setFactType(e.target.value)}
+                className="w-full bg-white border border-[#d8d0c8] rounded-md px-2 py-1.5 font-bold text-[#3a302a] outline-none"
+              >
+                <option value="1">1 · Solvency</option>
+                <option value="2">2 · Clean Provenance</option>
+                <option value="3">3 · PnL Audit</option>
+              </select>
             </div>
+            <div className="p-3 sahara-inset space-y-1">
+              <div className="text-[#9a9088] text-[10px] uppercase font-bold">Validity (days)</div>
+              <input
+                type="number"
+                value={durationDays}
+                onChange={(e) => setDurationDays(e.target.value)}
+                className="w-full bg-transparent font-bold text-[#3a302a] outline-none tnum"
+              />
+            </div>
+          </div>
+          <button
+            onClick={handleIssue}
+            disabled={!account || busy !== ""}
+            className="w-full py-3.5 rounded-lg bg-[#c2652a] hover:bg-[#a85320] text-white font-bold text-xs tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50 font-body"
+          >
+            {busy === "issue" ? (
+              <><RefreshCw className="h-4 w-4 animate-spin" /> ISSUING…</>
+            ) : (
+              <><FileCheck2 className="h-4 w-4" /> ISSUE ATTESTATION</>
+            )}
+          </button>
 
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Mathematically proves that total vault reserves ($12.41M) match or exceed all outstanding note claims without revealing individual balances.
-            </p>
-
+          {/* Live solvency */}
+          <div className="border-t border-[#e6e0d6] pt-4 space-y-3">
+            <div className="flex items-center justify-between text-xs font-body">
+              <span className="font-bold uppercase text-[#3a302a]">Live Vault Solvency</span>
+              <span className="font-mono text-[11px] text-[#605850] tnum">
+                {vaultAssets !== null ? `${fmtEth(vaultAssets)} ETH` : "…"} /{" "}
+                {vaultShares !== null ? vaultShares.toLocaleString("en-US") : "…"} sh
+              </span>
+            </div>
             <button
-              onClick={handleGenerateSolvency}
-              disabled={isGenerating}
-              className="w-full py-2.5 rounded-lg bg-[#f59e0b] hover:bg-[#d97706] text-black font-bold text-xs transition-colors flex items-center justify-center gap-2 font-mono"
+              onClick={handleSolvencyProof}
+              disabled={!account || busy !== "" || vaultAssets === null}
+              className="w-full py-3 rounded-lg bg-[#ffffff] border border-[#d8d0c8] hover:border-[#c2652a] text-[#3a302a] font-bold text-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50 font-body"
             >
-              {isGenerating ? (
-                <>
-                  <RefreshCw className="h-3.5 w-3.5 animate-spin" /> PROVING STARK SOLVENCY...
-                </>
+              {busy === "solvency" ? (
+                <><RefreshCw className="h-4 w-4 animate-spin" /> PROVING…</>
               ) : (
-                <>
-                  <FileCheck2 className="h-3.5 w-3.5" /> GENERATE SOLVENCY PROOF
-                </>
+                <><ShieldCheck className="h-4 w-4 text-[#c2652a]" /> RUN SOLVENCY PROOF VS LIVE STATE</>
               )}
             </button>
-
-            {generatedProof && (
-              <div className="p-3.5 fin-inset border-emerald-500/30 space-y-2 text-xs font-mono">
-                <div className="flex items-center gap-2 text-emerald-400 font-bold">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> ZK-Proof Verified on Attest Engine!
-                </div>
-                <div className="text-zinc-400 text-[10px] break-all">
-                  Root: {generatedProof.attestation.proofRoot}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Encrypted Note Vault Backup (Feature 4) */}
-          <div className="fin-card p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#1f2634] pb-3">
-              <h2 className="text-xs font-bold text-zinc-200 uppercase font-mono flex items-center gap-2">
-                <Lock className="h-3.5 w-3.5 text-amber-400" />
-                Encrypted Note Backup & Recovery
-              </h2>
-              <span className="text-[10px] font-mono text-emerald-400">AES-GCM 256-Bit</span>
-            </div>
-
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Encrypt your private note commitments, secrets, and viewing keys with a local password for secure multi-device recovery.
-            </p>
-
-            <div className="space-y-2 font-mono text-xs">
-              <input
-                type="password"
-                value={backupPassword}
-                onChange={(e) => setBackupPassword(e.target.value)}
-                placeholder="Set encryption passphrase"
-                className="w-full bg-[#0b0d12] px-3 py-2 rounded-lg border border-[#222a3a] text-white outline-none focus:border-amber-500/50"
-              />
-              <button
-                onClick={handleCreateEncryptedBackup}
-                disabled={!backupPassword || isEncrypting}
-                className="w-full py-2.5 rounded-lg bg-[#181d28] hover:bg-[#202736] border border-[#2a354a] text-zinc-200 font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+            {solvencyResult !== null && (
+              <div
+                className={`p-3 rounded-lg text-xs font-bold font-body ${
+                  solvencyResult
+                    ? "bg-[#fbe8d8]/50 text-[#c2652a] border border-[#c2652a]/30"
+                    : "bg-[#8c3c3c]/5 text-[#8c3c3c] border border-[#8c3c3c]/30"
+                }`}
               >
-                <Key className="h-3.5 w-3.5 text-amber-400" /> Create Encrypted Vault Backup
-              </button>
-            </div>
-
-            {encryptedFileContent && (
-              <div className="p-3 fin-inset border-emerald-500/30 space-y-2 text-xs font-mono">
-                <div className="flex items-center gap-2 text-emerald-400 font-bold">
-                  <ShieldCheck className="h-4 w-4" /> Vault Encrypted (PBKDF2 SHA-256 + AES-GCM)
-                </div>
-                <button
-                  onClick={handleDownloadBackup}
-                  className="w-full py-2 rounded bg-[#131720] hover:bg-[#1a202c] border border-[#252f40] text-amber-400 font-bold text-[11px] flex items-center justify-center gap-1.5"
-                >
-                  <Download className="h-3.5 w-3.5" /> Download .oblivion Keyfile
-                </button>
+                {solvencyResult ? "PROVEN SOLVENT" : "NOT PROVEN"}
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Column: Public Verifier & Active Ledger (7 cols) */}
-        <div className="lg:col-span-7 space-y-5">
-          {/* Public On-Chain Verifier */}
-          <div className="fin-card p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#1f2634] pb-3">
-              <h2 className="text-xs font-bold text-zinc-200 uppercase font-mono flex items-center gap-2">
-                <Search className="h-3.5 w-3.5 text-amber-400" />
-                Public Attestation Verifier
-              </h2>
-              <span className="text-[10px] font-mono text-zinc-400">On-Chain Verification</span>
-            </div>
-
-            <p className="text-xs text-zinc-400">
-              Any third-party protocol or institutional auditor can verify an Oblivion attestation directly against <code className="text-amber-400 font-mono">AttestEngine.cairo</code>.
-            </p>
-
-            <div className="flex items-center gap-2 font-mono text-xs">
-              <input
-                type="text"
-                value={searchId}
-                onChange={(e) => setSearchId(e.target.value)}
-                placeholder="Enter Attestation ID or Proof Root (0x...)"
-                className="w-full bg-[#0b0d12] px-3.5 py-2.5 rounded-lg border border-[#222a3a] text-white outline-none focus:border-amber-500/50"
-              />
-              <button
-                onClick={handleVerify}
-                className="px-4 py-2.5 rounded-lg bg-[#181d28] hover:bg-[#222938] border border-[#2a354a] text-zinc-200 font-semibold text-xs whitespace-nowrap font-mono"
-              >
-                Verify Proof
-              </button>
-            </div>
-
-            {searchResult && (
-              <div className="p-3 fin-inset border-emerald-500/30 text-xs font-mono text-emerald-400 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 shrink-0" />
-                <span>{searchResult}</span>
-              </div>
-            )}
+        {/* Lookup */}
+        <div className="lg:col-span-7 sahara-card p-6 sm:p-8 space-y-4">
+          <h2 className="text-xs font-bold text-[#3a302a] uppercase font-body flex items-center gap-2 border-b border-[#e6e0d6] pb-3">
+            <Search className="h-3.5 w-3.5 text-[#c2652a]" /> Verify Attestation
+          </h2>
+          <div className="flex gap-2">
+            <input
+              value={lookupId}
+              onChange={(e) => setLookupId(e.target.value)}
+              placeholder="attestation ID"
+              className="flex-1 p-3 sahara-inset bg-transparent font-mono text-sm font-semibold text-[#3a302a] outline-none"
+            />
+            <button
+              onClick={handleLookup}
+              className="px-5 rounded-lg bg-[#c2652a] hover:bg-[#a85320] text-white font-bold text-xs transition-colors font-body"
+            >
+              LOOKUP
+            </button>
           </div>
-
-          {/* Active Ledger */}
-          <div className="fin-card p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#1f2634] pb-3">
-              <h2 className="text-xs font-bold text-zinc-200 uppercase font-mono flex items-center gap-2">
-                <FileCode2 className="h-3.5 w-3.5 text-amber-400" />
-                Active Attestation Records
-              </h2>
-              <span className="text-[10px] font-mono text-zinc-500">Live Registry</span>
-            </div>
-
-            <div className="space-y-3 font-mono text-xs">
-              {attestations.map((att, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 fin-inset space-y-2 hover:border-[#2d374b] transition-colors"
+          {lookupErr && (
+            <p className="text-xs font-mono text-[#8c3c3c]">{lookupErr}</p>
+          )}
+          {record && (
+            <div className="p-5 sahara-inset space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-headline text-lg font-bold text-[#3a302a]">
+                  {FACT_TYPES[record.factType] ?? `Type ${record.factType}`}
+                </span>
+                <span
+                  className={`sahara-badge ${
+                    record.isValid
+                      ? "text-[#c2652a] border-[#c2652a]/30 bg-[#fbe8d8]/60"
+                      : "text-[#8c3c3c]"
+                  }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-white text-xs">{att.factType}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950/40 border border-emerald-500/30 text-emerald-400">
-                      VALID
-                    </span>
-                  </div>
-
-                  <p className="text-zinc-400 text-[11px] font-sans leading-relaxed">{att.description}</p>
-
-                  <div className="grid grid-cols-2 gap-2 text-[10px] text-zinc-500 pt-1">
-                    <div>
-                      <span>ID: </span>
-                      <span className="text-zinc-400">{att.id}</span>
-                    </div>
-                    <div>
-                      <span>Issued: </span>
-                      <span className="text-zinc-400">{att.issuedAt}</span>
-                    </div>
-                  </div>
+                  {record.isValid ? "VALID" : "EXPIRED / REVOKED"}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-[11px] font-mono text-[#605850]">
+                <div>
+                  <span className="text-[#9a9088]">Subject:</span>{" "}
+                  <span className="text-[#3a302a] break-all">{record.subjectHash.slice(0, 18)}…</span>
                 </div>
-              ))}
+                <div>
+                  <span className="text-[#9a9088]">Issued:</span>{" "}
+                  <span className="text-[#3a302a]">{new Date(record.issuedAt * 1000).toLocaleString()}</span>
+                </div>
+                <div>
+                  <span className="text-[#9a9088]">Expires:</span>{" "}
+                  <span className="text-[#3a302a]">{new Date(record.expiresAt * 1000).toLocaleString()}</span>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+          <p className="text-[11px] font-mono text-[#9a9088] leading-relaxed">
+            Testnet note: the deployed engine validates proof structure only.
+            Production swaps in Garaga-verified STWO proofs via class-hash
+            gating — see OblivionProtocol.md §7.
+          </p>
         </div>
       </div>
     </div>

@@ -42,6 +42,7 @@ pub trait IOblivionVault<TContractState> {
     ) -> Span<OpenNoteDeposit>;
     fn harvest_and_compound(ref self: TContractState, token: ContractAddress) -> u256;
     fn get_position(self: @TContractState, note_commitment: felt252) -> LPPosition;
+    fn get_token_shares(self: @TContractState, token: ContractAddress) -> u256;
     fn get_total_shares(self: @TContractState) -> u256;
     fn get_total_assets(self: @TContractState, token: ContractAddress) -> u256;
     fn get_accumulated_fees_per_share(self: @TContractState) -> u256;

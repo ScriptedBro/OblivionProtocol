@@ -1,75 +1,67 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Manrope:wght@200..800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg-main: #090a0d;
-  --panel-bg: #11141b;
-  --panel-surface: #161a23;
-  --panel-border: #222938;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent-gold: #f59e0b;
+  --bg-main: #faf5ee;
+  --surface: #faf5ee;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f6f0e8;
+  --surface-container: #f2ece4;
+  --surface-container-high: #ece6dc;
+  --on-surface: #3a302a;
+  --on-surface-variant: #605850;
+  --primary: #c2652a;
+  --primary-container: #e08850;
+  --primary-fixed: #fbe8d8;
+  --outline: #9a9088;
+  --outline-variant: #d8d0c8;
 }
 
 body {
-  color: var(--text-primary);
+  color: var(--on-surface);
   background-color: var(--bg-main);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
   min-height: 100vh;
   overflow-x: hidden;
   letter-spacing: -0.01em;
 }
 
-/* Precise Financial Terminal Borders & Panels */
-.fin-card {
-  background-color: #11141b;
-  border: 1px solid #1f2634;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'EB Garamond', Georgia, serif;
+}
+
+/* Sahara Warm Minimalist Cards */
+.sahara-card {
+  background-color: #ffffff;
+  border: 1px solid #d8d0c8;
   border-radius: 12px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 16px rgba(58, 48, 42, 0.04);
+  position: relative;
 }
 
-.fin-card-interactive {
-  background-color: #11141b;
-  border: 1px solid #1f2634;
-  border-radius: 12px;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
-}
-.fin-card-interactive:hover {
-  border-color: #333e54;
-  background-color: #141822;
+.sahara-inset {
+  background-color: #f6f0e8;
+  border: 1px solid #e6e0d6;
+  border-radius: 10px;
 }
 
-.fin-inset {
-  background-color: #0b0d12;
-  border: 1px solid #181d28;
-  border-radius: 8px;
-}
-
-.fin-badge {
+.sahara-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  font-family: 'JetBrains Mono', monospace;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-family: 'Manrope', sans-serif;
   font-size: 0.6875rem;
-  font-weight: 500;
-  border: 1px solid #263042;
-  background-color: #141924;
-  color: #cbd5e1;
-}
-
-/* Subtle Technical Grid Background */
-.tech-grid {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  font-weight: 600;
+  border: 1px solid #d8d0c8;
+  background-color: #f2ece4;
+  color: #605850;
+  letter-spacing: 0.02em;
 }
 
 /* Monospace Numbers */
@@ -78,21 +70,21 @@ body {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Custom Sleek Scrollbar */
+/* Custom Warm Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090a0d;
+  background: #faf5ee;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #202736;
-  border-radius: 2px;
+  background: #d8d0c8;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #36425a;
+  background: #9a9088;
 }

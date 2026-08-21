@@ -72,19 +72,20 @@ export async function executeStrk20Transaction(
     throw new Error("No connected Starknet wallet account");
   }
 
-  // Check if wallet supports native strk20InvokeTransaction
-  if (typeof account.strk20InvokeTransaction === "function") {
-    return await account.strk20InvokeTransaction(actions);
+  // STRK20 private invokes require a privacy-enabled wallet
+  // (starknet.js WalletAccountV6 / STRK20 Wallet API). There is no honest
+  // fallback: a standard account cannot produce ZK notes.
+  if (typeof account.strk20InvokeTransaction !== "function") {
+    throw new Error(
+      "Connected wallet does not support strk20InvokeTransaction — install a STRK20-enabled wallet build"
+    );
   }
-
-  // Fallback for standard Account.execute
-  return {
-    transaction_hash: "0x07f419460965d6d83b2cc919a0f08d11dee212fe367849cfb1afe124ed14b511",
-  };
+  return await account.strk20InvokeTransaction(actions);
 }
 
 /**
- * Queries private shielded balances from wallet without exposing viewing keys
+ * Queries private shielded balances from wallet without exposing viewing keys.
+ * Returns empty results when the wallet has no STRK20 API — never fake data.
  */
 export async function queryShieldedBalances(
   account: any,
@@ -94,12 +95,8 @@ export async function queryShieldedBalances(
     try {
       return await account.strk20Balances(tokens);
     } catch {
-      // Fallback
+      return [];
     }
   }
-
-  return tokens.map((token) => ({
-    token,
-    balance: "12500.00",
-  }));
+  return [];
 }

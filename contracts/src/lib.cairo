@@ -15,6 +15,7 @@ pub mod core {
     pub mod CoWMatcher;
     pub mod YieldRouter;
     pub mod SessionKeyManager;
+    pub mod MockPool;
 }
 
 pub mod compliance {

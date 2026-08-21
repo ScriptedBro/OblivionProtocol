@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
+import { WalletProvider } from "@/lib/wallet";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Oblivion Protocol — Confidential Financial Terminal on Starknet",
+  title: "Oblivion Protocol — Confidential Liquidity Layer on Starknet",
   description:
-    "Institutional shielded concentrated liquidity on Ekubo, zero-MEV CoW batch auctions, and zero-knowledge solvency compliance powered by STRK20.",
+    "Shielded concentrated liquidity, zero-MEV batch auctions, and zero-knowledge solvency compliance built on the STRK20 privacy pool.",
 };
 
 export default function RootLayout({
@@ -14,26 +15,49 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-[#090a0d] text-slate-100 antialiased min-h-screen flex flex-col tech-grid">
-        <Navbar />
-        <main className="flex-1 pb-16">{children}</main>
+    <html lang="en">
+      <body className="antialiased min-h-screen flex flex-col">
+        <WalletProvider>
+          <Navbar />
+          <main className="flex-1 pb-16">{children}</main>
 
-        <footer className="border-t border-[#181d27] bg-[#0b0d12] py-5 text-xs text-zinc-500 font-mono">
-          <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
-              <span>OBLIVION PROTOCOL · STARKNET STRK20 SPECIFICATION v1.0</span>
+          <footer className="border-t border-[#d8d0c8] bg-[#f6f0e8] py-5 text-xs text-[#605850] font-mono">
+            <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#c2652a]"></span>
+                <span>OBLIVION PROTOCOL · STARKNET SEPOLIA TESTNET · STRK20 SPEC v1.0</span>
+              </div>
+              <div className="flex items-center gap-4 text-[#9a9088]">
+                <a
+                  href="https://sepolia.voyager.online/contract/0x05108e8659b0024fa93c809b4ff05761e70c68e0b9e0c456547d83bd68cc0396"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-[#c2652a] transition-colors"
+                >
+                  OblivionVault
+                </a>
+                <span>/</span>
+                <a
+                  href="https://sepolia.voyager.online/contract/0x0128a4513e035cfbb68f7b781661068d81873c1c942f5fab32997259ab719dda"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-[#c2652a] transition-colors"
+                >
+                  CoWMatcher
+                </a>
+                <span>/</span>
+                <a
+                  href="https://sepolia.voyager.online/contract/0x0103746eaabf31b727865b9da91b978ee5ca3d43a5563580d119497fd77d73e8"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-[#c2652a] transition-colors"
+                >
+                  AttestEngine
+                </a>
+              </div>
             </div>
-            <div className="flex items-center gap-4 text-zinc-400">
-              <span className="hover:text-zinc-200 cursor-pointer">Ekubo Core CLMM</span>
-              <span>/</span>
-              <span className="hover:text-zinc-200 cursor-pointer">Pragma Feeds</span>
-              <span>/</span>
-              <span className="hover:text-zinc-200 cursor-pointer">ATTEST ZK-Engine</span>
-            </div>
-          </div>
-        </footer>
+          </footer>
+        </WalletProvider>
       </body>
     </html>
   );

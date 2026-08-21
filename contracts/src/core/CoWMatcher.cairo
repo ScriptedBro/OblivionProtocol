@@ -4,28 +4,26 @@ pub mod CoWMatcher {
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess};
     use oblivion_protocol::interfaces::ICoWMatcher::{ICoWMatcher, BatchState};
 
-    const PRICE_PRECISION: u256 = 1_000_000_000_000_000_000_u256; // 1e18
-
     #[storage]
     struct Storage {
         admin: ContractAddress,
         strk20_pool: ContractAddress,
         pragma_oracle: ContractAddress,
-        batch_counter: u64,
+        batch_count: u64,
         batches: Map<u64, BatchState>,
-        order_commitments: Map<(u64, felt252), bool>,
+        order_commitments: Map<felt252, bool>,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
-        BatchCreated: BatchCreated,
-        OrderCommitted: OrderCommitted,
-        BatchCleared: BatchCleared,
+        BatchOpened: BatchOpened,
+        OrderSealed: OrderSealed,
+        BatchSettled: BatchSettled,
     }
 
     #[derive(Drop, starknet::Event)]
-    pub struct BatchCreated {
+    pub struct BatchOpened {
         #[key]
         pub batch_id: u64,
         pub token_a: ContractAddress,
@@ -33,27 +31,25 @@ pub mod CoWMatcher {
         pub deadline: u64,
     }
 
+    // Zero-Knowledge Blind Event: Emits ONLY the order commitment hash (no amounts, no limit prices)
     #[derive(Drop, starknet::Event)]
-    pub struct OrderCommitted {
+    pub struct OrderSealed {
         #[key]
         pub batch_id: u64,
         #[key]
         pub order_commitment: felt252,
-        pub is_token_a: bool,
-        pub amount: u256,
     }
 
     #[derive(Drop, starknet::Event)]
-    pub struct BatchCleared {
+    pub struct BatchSettled {
         #[key]
         pub batch_id: u64,
-        pub volume_a_cleared: u256,
-        pub volume_b_cleared: u256,
         pub clearing_price: u256,
+        pub matched_volume: u256,
     }
 
     #[constructor]
-    fn constructor(
+    pub fn constructor(
         ref self: ContractState,
         admin: ContractAddress,
         strk20_pool: ContractAddress,
@@ -62,7 +58,7 @@ pub mod CoWMatcher {
         self.admin.write(admin);
         self.strk20_pool.write(strk20_pool);
         self.pragma_oracle.write(pragma_oracle);
-        self.batch_counter.write(0);
+        self.batch_count.write(0);
     }
 
     #[abi(embed_v0)]
@@ -73,10 +69,9 @@ pub mod CoWMatcher {
             token_b: ContractAddress,
             duration_seconds: u64
         ) -> u64 {
-            let next_id = self.batch_counter.read() + 1;
-            self.batch_counter.write(next_id);
-
+            let next_id = self.batch_count.read() + 1;
             let deadline = get_block_timestamp() + duration_seconds;
+
             self.batches.write(next_id, BatchState {
                 token_a,
                 token_b,
@@ -87,7 +82,9 @@ pub mod CoWMatcher {
                 is_settled: false,
             });
 
-            self.emit(BatchCreated {
+            self.batch_count.write(next_id);
+
+            self.emit(BatchOpened {
                 batch_id: next_id,
                 token_a,
                 token_b,
@@ -107,11 +104,10 @@ pub mod CoWMatcher {
         ) {
             let mut batch = self.batches.read(batch_id);
             assert(!batch.is_settled, 'Batch already settled');
-            assert(get_block_timestamp() <= batch.deadline, 'Batch expired');
-            assert(amount > 0, 'Amount must be > 0');
+            assert(amount > 0, 'Zero amount');
+            assert(!self.order_commitments.read(order_commitment), 'Order already committed');
 
-            assert(!self.order_commitments.read((batch_id, order_commitment)), 'Duplicate commitment');
-            self.order_commitments.write((batch_id, order_commitment), true);
+            self.order_commitments.write(order_commitment, true);
 
             if is_token_a {
                 batch.total_volume_a += amount;
@@ -121,35 +117,34 @@ pub mod CoWMatcher {
 
             self.batches.write(batch_id, batch);
 
-            self.emit(OrderCommitted {
+            // Blind event emission (No amount or side leakage)
+            self.emit(OrderSealed {
                 batch_id,
                 order_commitment,
-                is_token_a,
-                amount
             });
         }
 
         fn settle_batch(ref self: ContractState, batch_id: u64, oracle_price: u256) {
             let mut batch = self.batches.read(batch_id);
             assert(!batch.is_settled, 'Batch already settled');
-            assert(oracle_price > 0, 'Price must be > 0');
-
-            let matched_a = batch.total_volume_a;
-            let matched_b = if matched_a > 0 {
-                (matched_a * oracle_price) / PRICE_PRECISION
-            } else {
-                batch.total_volume_b
-            };
+            assert(oracle_price > 0, 'Invalid clearing price');
 
             batch.clearing_price = oracle_price;
             batch.is_settled = true;
             self.batches.write(batch_id, batch);
 
-            self.emit(BatchCleared {
+            // Sound CoW math: matched volume is the crossed intersection
+            let volume_a_in_b = (batch.total_volume_a * oracle_price) / 1_000_000_000_000_000_000_u256;
+            let matched_volume = if volume_a_in_b < batch.total_volume_b {
+                volume_a_in_b
+            } else {
+                batch.total_volume_b
+            };
+
+            self.emit(BatchSettled {
                 batch_id,
-                volume_a_cleared: matched_a,
-                volume_b_cleared: matched_b,
-                clearing_price: oracle_price
+                clearing_price: oracle_price,
+                matched_volume
             });
         }
 
@@ -158,7 +153,7 @@ pub mod CoWMatcher {
         }
 
         fn get_current_batch_id(self: @ContractState) -> u64 {
-            self.batch_counter.read()
+            self.batch_count.read()
         }
     }
 }

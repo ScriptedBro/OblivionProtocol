@@ -1,17 +1,16 @@
 import { RpcProvider, Contract, uint256, num } from "starknet";
 import { OBLIVION_CONTRACTS } from "./starknet";
 
-// Reliable public Starknet Mainnet & Sepolia RPC nodes
+// Reliable public Starknet Mainnet & Sepolia RPC nodes (ordered: working first)
 const MAINNET_RPC_URLS = [
-  "https://starknet-mainnet.public.blastapi.io",
-  "https://free-rpc.nethermind.io/mainnet-juno/v0_7",
   "https://rpc.starknet.lava.build",
+  "https://starknet-mainnet.public.blastapi.io",
 ];
 
 const SEPOLIA_RPC_URLS = [
-  "https://starknet-sepolia.public.blastapi.io",
-  "https://free-rpc.nethermind.io/sepolia-juno/v0_7",
-];
+  process.env.NEXT_PUBLIC_RPC_URL ?? "", // Alchemy key injected by deploy script
+  "https://rpc.starknet-sepolia.lava.build",
+].filter(Boolean);
 
 // Mainnet ERC-20 Token Addresses
 export const TOKEN_ADDRESSES = {
@@ -39,18 +38,28 @@ export async function fetchNetworkTelemetry(): Promise<LiveNetworkState> {
   try {
     const provider = getProvider(true);
     const blockNumber = await provider.getBlockNumber();
+    let gasPriceGwei = "—";
+    try {
+      const block = (await provider.getBlock()) as Record<string, unknown>;
+      const raw =
+        (block?.l1_gas_price as { price?: string } | undefined)?.price ??
+        (block?.gas_price as string | undefined);
+      if (raw) gasPriceGwei = (Number(BigInt(raw)) / 1e18).toFixed(2);
+    } catch {
+      /* gas price unavailable on this node version */
+    }
     return {
       blockNumber,
-      gasPriceGwei: "1.18",
+      gasPriceGwei,
       isMainnet: true,
       status: "CONNECTED",
     };
   } catch {
     return {
-      blockNumber: 629148,
-      gasPriceGwei: "1.20",
+      blockNumber: 0,
+      gasPriceGwei: "—",
       isMainnet: true,
-      status: "CONNECTED",
+      status: "ERROR",
     };
   }
 }
