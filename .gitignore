@@ -27,3 +27,6 @@ contracts/.snfoundry_cache/
 *.log
 npm-debug.log*
 .agents/
+
+# Internal docs
+OblivionProtocol.md
