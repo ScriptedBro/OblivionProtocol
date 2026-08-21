@@ -1,142 +1,152 @@
 # Oblivion Protocol 🌑
 
-> **The Sovereign Dark Liquidity & Confidential Financial Engine of Starknet**  
-> Built for the **STRK20 Private Sprint** · Starknet Mainnet
+> **The Sovereign Dark Liquidity & Confidential Financial Engine of Starknet**
+> Shielded concentrated liquidity · sealed-batch dark swaps · ZK compliance attestations
+>
+> **Status: Sepolia testnet** — the docs describe the mainnet target; we are
+> catching the code up to them milestone by milestone ([ROADMAP](docs/ROADMAP.md)).
 
 ---
 
-## ⚡ Overview
+## ⚡ What it is
 
-**Oblivion Protocol** transforms Starknet’s STRK20 pool into a high-throughput, institutional-grade **Dark Financial Engine**. It enables institutional liquidity providers and retail traders to:
-1. Provide **Shielded Concentrated Liquidity (CLMM)** into AMM pools (Ekubo) without revealing position sizes, tick bounds, or fee compounding yields.
-2. Execute **Zero-MEV, Zero-Slippage Batch Swaps** via internal **Coincidence of Wants (CoW)** matching before routing residual volume to external AMMs.
-3. Automatically route idle shielded collateral into Starknet money markets (**Nostra / zkLend**) for multi-stream yield compounding.
-4. Export verifiable **Zero-Knowledge Proofs of Solvency and Clean Provenance** for institutional auditors on demand using the embedded **ATTEST Compliance Engine**.
+Oblivion Protocol turns capital held in the [STRK20 privacy pool](https://github.com/starkware-libs/strk20) into a
+confidential, institutional-grade liquidity engine:
 
----
+1. **Shielded Concentrated Liquidity (Pillar I)** — LPs deposit via ZK note
+   commitments into tick-bounded vault positions on Ekubo. Position sizes,
+   tick bounds and fee yields are never public; only aggregate per-token TVL is.
+2. **Dark Batch Swaps (Pillar II)** — orders are hash-committed before a batch
+   deadline and cleared at one uniform price. Nothing to sandwich, nothing to
+   front-run.
+3. **Multi-Stream Yield (Pillar III)** — idle shielded collateral routes to
+   Nostra/zkLend; harvested yield re-shields automatically back into notes.
+4. **ATTEST Compliance (Pillar IV)** — zero-knowledge proofs of solvency,
+   clean provenance and PnL that auditors can verify without ever seeing a
+   balance.
 
-## 🏛️ System Architecture
+**Privacy stance:** StarkWare's compliance-first model — hide the *data*,
+prove the *facts*.
 
-```
-+---------------------------------------------------------------------------------------------------------------+
-|                                          OBLIVION PROTOCOL ARCHITECTURE                                       |
-|                                                                                                               |
-|  [ Institutional Whales / LPs ]                           [ Algorithmic Traders / AI Agents / Users ]         |
-|                |                                                                  |                           |
-|                +-----------------------------------\                              |                           |
-|                                                     v                             v                           |
-|  +---------------------------------------------------------------------------------------------------------+  |
-|  |                                      STRK20 PRIVACY POOL (Starknet Mainnet)                             |  |
-|  |   - Unified Shielded Note Pool (STRK, USDC, ETH, WBTC)                                                  |  |
-|  |   - Mandatory FPI Deposit Sanctions Screening Verification                                              |  |
-|  +---------------------------------------------------------------------------------------------------------+  |
-|                                                        |                                                      |
-|                                                        v (Atomic privacy_invoke)                              |
-|  +---------------------------------------------------------------------------------------------------------+  |
-|  |                                          OBLIVION CORE CONTRACT ENGINE                                  |  |
-|  |                                                                                                         |  |
-|  |   +---------------------------------------+             +---------------------------------------+       |  |
-|  |   |   Pillar I: OblivionVault.cairo       |             |   Pillar II: CoWMatcher.cairo         |       |  |
-|  |   |   - Shielded Concentrated LP Vault    |             |   - Internal Dark Batch Auctions      |       |  |
-|  |   |   - Ekubo CLMM Tick Blender           | <---------> |   - Uniform Clearing Price Math       |       |  |
-|  |   |   - Atomic Fee Auto-Compounding       |             |   - Zero-MEV Internal Netting         |       |  |
-|  |   +---------------------------------------+             +---------------------------------------+       |  |
-|  |                                                                                                         |  |
-|  |   +-------------------------------------------------------------------------------------------------+   |  |
-|  |   |   Pillar V: ATTEST Compliance Engine (AttestEngine.cairo & SolvencyProver.cairo)                |   |  |
-|  |   |   - Fact 1: Cryptographic Proof of Pool Solvency (Vault Assets >= Liabilities)                  |   |  |
-|  |   |   - Fact 2: Clean Provenance Proof (Verifies FPI deposit screening signatures)                  |   |  |
-|  |   |   - Fact 3: Selective Audit Export (ZKP tax, PnL & counterparty attestation for regulators)     |   |  |
-|  |   +-------------------------------------------------------------------------------------------------+   |  |
-|  +---------------------------------------------------------------------------------------------------------+  |
-|                                                        |                                                      |
-|                                                        v (Composed External Integrations)                     |
-|  +---------------------------------------------------------------------------------------------------------+  |
-|  |                                  EXTERNAL STARKNET PROTOCOL ECOSYSTEM                                   |  |
-|  |            [ Ekubo Core CLMM ]          [ Pragma Oracle ]          [ Nostra / zkLend ]                  |  |
-|  +---------------------------------------------------------------------------------------------------------+  |
-+---------------------------------------------------------------------------------------------------------------+
-```
-
----
-
-## 🔒 Cryptographic Threat Boundary: Hidden vs. Verifiable
-
-Oblivion Protocol adheres strictly to StarkWare's official **compliance-first privacy standard**:
-
-| Dimension | Publicly Visible On-Chain | Cryptographically Hidden / Shielded |
+| Dimension | Publicly visible | Cryptographically hidden |
 |---|---|---|
-| **LP Identity & Balance** | Aggregate vault liquidity balance in `OblivionVault`. | Individual LP wallet addresses, individual note balances, and percentage ownership of the pool. |
-| **Concentrated Tick Ranges** | The blended, aggregated active ticks deployed on Ekubo Core. | Which specific LP selected which price boundary or custom risk band. |
-| **Batch Order Flow** | The batch ID, expiration timestamp, and uniform clearing price. | Individual trader wallet addresses, order sizes, limit prices, and execution schedules. |
-| **Fee Yield Compounding** | Aggregate fee re-shielding transaction into the STRK20 pool. | Individual fee distribution across private LP note holders. |
-| **Regulatory & Tax Audit** | Cryptographic ZK-Attestation verifying pool solvency and sanctions-free origins. | Historical counterparty interactions, unshielded balances, or unrelated wallet activity. |
+| LP identity & size | aggregate vault TVL | wallets ↔ positions, note balances, ownership % |
+| Tick ranges | blended active range | who chose which band |
+| Batch orders | batch id, deadline, clearing price | trader identity, size, limit price, side |
+| Yield | aggregate harvest events | per-note fee streams |
+| Audit | attestation facts + expiry | underlying balances & counterparties |
 
 ---
 
-## 📂 Repository Structure
+## 🏛️ Architecture
 
 ```
-.
-├── contracts/                                # Scarb / Starknet Foundry Suite
-│   ├── Scarb.toml
-│   ├── snfoundry.toml
-│   ├── src/
-│   │   ├── lib.cairo
-│   │   ├── core/
-│   │   │   ├── OblivionVault.cairo          # Shielded LP Vault (IAnonymizer for STRK20)
-│   │   │   └── CoWMatcher.cairo             # Dark Batch Auction & CoW matching engine
-│   │   ├── compliance/
-│   │   │   └── AttestEngine.cairo           # Selective Fact-Proof generator & verifier
-│   │   └── interfaces/
-│   │       ├── ISTRK20Pool.cairo            # Live STRK20 Pool interface
-│   │       ├── IEkuboCore.cairo             # Ekubo CLMM interface
-│   │       ├── IAttest.cairo                # Public ATTEST interface for third-party dapps
-│   │       └── IPragmaOracle.cairo          # Pragma price oracle interface
-│   └── tests/
-│       ├── test_vault.cairo                 # snforge tests for shielded LP deposits/claims
-│       ├── test_cow_matcher.cairo           # snforge tests for batch clearing
-│       └── test_attest.cairo                # snforge tests for selective fact proofs
-│
-├── frontend/                                 # Next.js 14 Web Application
-│   ├── app/
-│   │   ├── page.tsx                         # Dark AMM Terminal
-│   │   ├── pool/page.tsx                    # Shielded Concentrated Liquidity Manager
-│   │   ├── swap/page.tsx                    # Dark CoW Batch Swap Terminal
-│   │   └── compliance/page.tsx              # ATTEST Compliance & Solvency Portal
-│   ├── components/                          # Navbar & Starknetkit connection
-│   └── lib/                                 # Contract dispatchers & types
-│
-├── strk20.json                               # Hackathon crawler manifest
-└── OblivionProtocol.md                       # Master Architecture & Technical Specification
+┌──────────────────────────────────────────────────────────────────────┐
+│  CLIENTS        Next.js terminal · STRK20 wallets · keepers · auditors│
+└───────────────┬──────────────────────────────────────────────────────┘
+                │ shield / unshield / privacy_invoke / commits
+┌───────────────▼──────────────────────────────────────────────────────┐
+│  STRK20 PRIVACY POOL     ZK notes · nullifiers · FPI screening       │
+└───────────────┬──────────────────────────────────────────────────────┘
+                │ privacy_invoke(note_commitment, payload)
+┌───────────────▼──────────────────────────────────────────────────────┐
+│  OBLIVION CORE                                                       │
+│   OblivionVault ◄──► CoWMatcher          SessionKeyManager           │
+│   shielded CLMM      sealed batches      delegated spend policies    │
+│        │                 │                                           │
+│   YieldRouter        AttestEngine                                       │
+│   Nostra/zkLend      ZK fact registry                                 │
+└───────────────┬──────────────────────────────────────────────────────┘
+                │
+┌───────────────▼──────────────────────────────────────────────────────┐
+│  EXTERNAL       Ekubo Core · Pragma Feeds · Nostra/zkLend · Garaga    │
+└──────────────────────────────────────────────────────────────────────┘
 ```
+
+Deep dives: [Architecture](docs/ARCHITECTURE.md) ·
+[Contract reference](docs/CONTRACTS.md) ·
+[Integrations](docs/INTEGRATIONS.md) ·
+[Deployments](docs/DEPLOYMENTS.md) ·
+[Roadmap](docs/ROADMAP.md)
 
 ---
 
-## 🛠️ Quickstart & Local Development
+## 📊 Implementation status
 
-### Toolchain Versions
-- **Scarb**: `v2.20.0` (Cairo `v2.20.0`, Sierra `v1.9.3`)
-- **Starknet Foundry (`snforge`)**: `v0.63.0`
-- **Next.js**: `v14.2.35`
+Honest ledger of what runs today vs. what the docs specify.
 
-### 1. Build and Test Cairo Smart Contracts
+| Component | Live on Sepolia | Mainnet target |
+|---|---|---|
+| Vault share math, per-token ledgers, blind events | ✅ | ✅ |
+| Real ERC-20 custody through executor | ✅ (MockPool) | ✅ (STRK20 pool) |
+| Sealed commit/reveal batch auctions | ✅ mechanism | ✅ + escrow & refunds |
+| Oracle-bounded clearing price | ❌ solver-supplied | Pragma median ± tolerance |
+| Ekubo position custody & real fee claims | ❌ internal accounting | ✅ |
+| Money-market routing (Nostra/zkLend) | ❌ simulated | ✅ |
+| Session keys with signature verification | ❌ storage only | ✅ |
+| ZK-gated attestations (Garaga verifier) | ❌ structural checks | ✅ STWO circuits |
+
+---
+
+## 🚀 Quickstart
+
+### Toolchain
+- Scarb `v2.20.0` (Cairo `v2.20.0`) · snforge `v0.63.0` · Next.js `14.2.35`
+
+### Contracts
 ```bash
 cd contracts
 scarb build
 snforge test
 ```
 
-### 2. Run the Next.js Frontend
+### Frontend
 ```bash
 cd frontend
 npm install
-npm run dev
+cp .env.local.example .env.local   # fill in RPC + contract addresses
+npm run dev                        # http://localhost:3000
 ```
 
-Visit `http://localhost:3000` to interact with the local Oblivion Terminal.
+Addresses for `.env.local`: see [docs/DEPLOYMENTS.md](docs/DEPLOYMENTS.md).
+
+### Try it on Sepolia
+1. Connect any Starknet wallet (get-starknet compatible).
+2. **Pool** — approve STRK or ETH, pick tick bounds, deposit. You receive
+   shares against a Poseidon note commitment stored locally; withdraw burns
+   shares and pays out real tokens.
+3. **Swap** — open a batch, commit a hashed order, settle at one price.
+4. **Compliance** — issue and verify solvency attestations against live vault state.
+
+---
+
+## 📂 Repository structure
+
+```
+.
+├── contracts/
+│   ├── src/core/
+│   │   ├── OblivionVault.cairo        # Pillar I — shielded CLMM vault
+│   │   ├── CoWMatcher.cairo           # Pillar II — sealed batch auctions
+│   │   ├── AttestEngine.cairo         # Pillar IV — ZK fact registry
+│   │   ├── YieldRouter.cairo          # Pillar III — money-market routing
+│   │   ├── MockPool.cairo             # testnet executor stand-in (real custody)
+│   │   └── SessionKeyManager.cairo    # delegated automation policies
+│   ├── src/interfaces/                # ISTRK20Pool, IEkuboCore, IPragmaOracle, ...
+│   ├── tests/                         # snforge suites incl. end-to-end flow
+│   └── deployments/sepolia.json       # machine-readable deployment record
+├── frontend/
+│   ├── app/                           # home · pool · swap · compliance
+│   ├── components/                    # Navbar, wallet modal
+│   └── lib/                           # starknet.ts factories, wallet.tsx,
+│                                      # poseidon.ts notes, strk20Wallet.ts
+├── docs/                              # architecture, contracts, integrations,
+│                                      # deployments, roadmap
+└── strk20.json                        # hackathon crawler manifest
+```
 
 ---
 
 ## 📜 License
-MIT License. Open source and built for the Starknet ecosystem.
+
+MIT. Built for the Starknet ecosystem.
